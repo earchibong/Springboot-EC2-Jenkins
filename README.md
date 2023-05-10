@@ -10,7 +10,11 @@ Java Spring Boot App. Database will Be MongoDB. Security Provider is Keycloak. C
 ## Here are my proposed steps for this configuration:
 
 
-1. Create a Dockerfile for the application.
+To set up a Jenkins CI/CD pipeline for a Java Spring Boot application with MongoDB as the database and Keycloak for security, you can follow the steps below:
+
+1. Clone the GitHub repository containing the Java Spring Boot application.
+
+2. Create a Dockerfile for the application.
 
 ```Dockerfile
 # Base image
@@ -31,19 +35,19 @@ CMD ["java", "-jar", "my-app.jar"]
 
 This Dockerfile assumes that you have already built the application JAR using `mvn clean package`.
 
-2. Create a GitHub repository for the application and push the code to it.
+3. Create an AWS Elastic Beanstalk environment to deploy the application.
 
-3. Install Jenkins on an EC2 instance or a server.
+4. Create an ECR repository to store the Docker image.
 
-4. Install the necessary plugins for the pipeline: Git, Maven, AWS Elastic Beanstalk, Docker, Keycloak, AWS ECR.
+5. Install Jenkins on an EC2 instance or a server.
 
-5. Create an ECR repository to store the Docker image.
+6. Install the necessary plugins for the pipeline: Git, Maven, Docker, Keycloak, AWS Elastic Beanstalk.
 
-6. Create a Jenkins pipeline job and configure the pipeline to use the GitHub repository as the source.
+7. Create a Jenkins pipeline job and configure the pipeline to use the GitHub repository as the source.
 
-7. Set up the pipeline to build the application using Maven and package it into a JAR.
+8. Set up the pipeline to build the application using Maven and package it into a JAR.
 
-8. Build a Docker image using the Dockerfile and the JAR file, and push it to the ECR repository.
+9. Build a Docker image using the Dockerfile and the JAR file, and push it to the ECR repository.
 
 ```Jenkinsfile
 pipeline {
@@ -79,30 +83,30 @@ pipeline {
       environment {
         AWS_ACCESS_KEY_ID = credentials('aws-access-key-id')
         AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
+        APP_NAME = 'my-app'
+        ENV_NAME = 'my-app-env'
+        DOCKER_IMAGE = "<your-ecr-repository-url>/my-app:latest"
       }
       steps {
-        withAWS(region: 'us-east-1') {
-          elasticBeanstalk(
-            applicationName: 'my-app',
-            environmentName: 'my-app-prod',
-            bucketName: 'my-app-deploy',
-            versionLabel: "${env.BUILD_NUMBER}",
-            waitForCompletion: true,
-            includeEnvironmentVariables: true,
-            keycloak: [
-              url: 'https://keycloak.mycompany.com/auth',
-              realm: 'myrealm',
-              clientId: 'my-app'
-            ],
-            s3Upload: true
-          )
-        }
+        ebDeploy(
+          awsAccessKeyId: AWS_ACCESS_KEY_ID,
+          awsSecretAccessKey: AWS_SECRET_ACCESS_KEY,
+          region: 'us-east-1',
+          applicationName: APP_NAME,
+          environmentName: ENV_NAME,
+          versionLabel: 'jenkins-' + env.BUILD_NUMBER,
+          description: 'Deploying my-app from Jenkins',
+          sourceBundle: '',
+          additionalArguments: "--image-url $DOCKER_IMAGE"
+        )
       }
     }
   }
 }
 ```
 
-9. Configure the Elastic Beanstalk environment with the appropriate settings for MongoDB and Keycloak.
+10. Set up Keycloak for authentication and authorization, and configure the application to use Keycloak for security.
 
-With these steps completed, you should now have a Jenkins CI/CD pipeline set up to automatically build and deploy your Java Spring Boot application to AWS Elastic Beanstalk using Docker and an ECR repository.
+11. Test the pipeline by making a code change and pushing it to the GitHub repository. The pipeline should automatically build and deploy the updated application to Elastic Beanstalk.
+
+Note that this pipeline assumes that you have already set up the necessary infrastructure components, including the AWS Elastic Beanstalk environment, the ECR repository, and the Keycloak server.
