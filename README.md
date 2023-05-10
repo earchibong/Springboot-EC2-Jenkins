@@ -1,10 +1,13 @@
-## Devops Project: Deploy Spring Boot MongoDB Application on AWS Elastic Beanstalk using Jenkins CI/CD
+## Deploy Spring Boot MongoDB Application on AWS Elastic Beanstalk using Jenkins CI/CD
 The idea for this project came from a freelance job request that reads as follows:
 
-Java Spring Boot App. Database will Be MongoDB. Security Provider is Keycloak. Create a configuration for this providing CI/CD to AWS as well as Dockerfile / Dockercompose.
+Java Spring Boot App. Database will Be MongoDB. Security Provider is Keycloak. Create a configuration for this. Providing CI/CD to AWS as well as Dockerfile / Dockercompose.
 
-Here are my proposed steps for this configuration:
+**Access full documentation for this project <a href="https://github.com/earchibong/springboot_project/documentation">here</a>**
 
+<br>
+
+## Here are my proposed steps for this configuration:
 
 
 1. Create a Dockerfile for the application.
