@@ -12,7 +12,7 @@ As per the client's request, the app had to be deployed on AWS. I chose `AWS ela
 
 <br>
 
-- **Step One: Clone the GitHub repository containing the Java Spring Boot application.**
+## Clone the GitHub repository containing the Java Spring Boot application.
 
 ```
 
