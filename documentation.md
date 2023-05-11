@@ -37,6 +37,8 @@ To load an embedded MongoDB with Spring Boot, all that is needed is to add its m
 
 <br>
 
+<br>
+
 - update the health controller as follows:
 
 ```
@@ -77,7 +79,7 @@ Elastic beanstalk by default provides an EC2 instance that runs `Nginx as revers
 <br>
 
 **To get the mongoDb uri**
-- sign up to < a href="https://www.mongodb.com/cloud/atlas/register"> `mongodb`</a>
+- sign up to <a href="https://www.mongodb.com/cloud/atlas/register"> `mongodb`</a>
 - deploy your database
 
 <br>
@@ -90,13 +92,16 @@ Elastic beanstalk by default provides an EC2 instance that runs `Nginx as revers
 
 <br>
 
+
 <img width="1390" alt="create_cluster_1c" src="https://github.com/earchibong/springboot_project/assets/92983658/935d2857-0ecc-4908-89df-152cc3c6c918">
 
 <br>
 
+
 - click the connect button to explore connection options. for this project, we will use the `drivers` option. So copy the connection string provided at add to the application layer in the app code base.
 
 <br>
+
 
 <img width="1383" alt="mongo_connect_1a" src="https://github.com/earchibong/springboot_project/assets/92983658/7891619d-7b66-4767-a0e3-bd6fce765d19">
 
@@ -106,9 +111,12 @@ Elastic beanstalk by default provides an EC2 instance that runs `Nginx as revers
 
 <br>
 
+
 <img width="823" alt="mongo_uri" src="https://github.com/earchibong/springboot_project/assets/92983658/03e60b5d-d8c2-4056-9dab-3d1c5d941e48">
 
 <br>
+
+
 
 
 
