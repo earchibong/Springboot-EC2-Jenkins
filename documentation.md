@@ -124,6 +124,8 @@ Elastic beanstalk by default provides an EC2 instance that runs `Nginx as revers
 
 <br>
 
+<br>
+
 ## Build Application Jar
 We need to create a JAR file that will be used to create the docker image and subsequently create the application on beanstalk. For that, the below maven command can be used. Then you can find the JAR inside /target folder.
 
