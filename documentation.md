@@ -8,7 +8,7 @@ As per the client's request, the app had to be deployed on AWS. I chose `AWS ela
 ## Project Steps:
 
 - <a href=" ">Clone the GitHub repository containing the Java Spring Boot application</a>
-- 
+- <a href="https://github.com/earchibong/springboot_project/blob/main/documentation.md#build-application-jar">build application Jar</a>
 
 <br>
 
