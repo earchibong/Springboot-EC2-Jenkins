@@ -16,11 +16,11 @@ As per the client's request, the app had to be deployed on AWS. I chose `AWS ela
 
 ```
 
-$ git clone https://github.com/alexturcot/sample-spring-boot-data-mongodb-embedded.git
+$ git clone https://github.com/SalithaUCSC/SpringBoot-REST-API.git
 
 ```
 
-I'm using a sample application from <a href="https://github.com/alexbt/sample-spring-boot-data-mongodb-embedded">alexbt</a> configured with `Mongo-DB` already embedded.
+I'm using a sample application from <a href="https://github.com/SalithaUCSC/SpringBoot-REST-API.git">Salitha Chathuranga</a> configured with `Mongo-DB` already embedded.
 
 *Note: When using `AWS Elastic Beanstalk` this configuration of embedding `mongodb` is important because we cannot connect a NoSQL database to `Elastic Beanstalk`. The reason for that is Beanstalk is currently not accepting NoSQL databases for selection. Let me explain that.*
 
@@ -33,7 +33,7 @@ To load an embedded MongoDB with Spring Boot, all that is needed is to add its m
 
 <br>
 
-<img width="1027" alt="pom" src="https://github.com/earchibong/springboot_project/assets/92983658/bfc0a048-03a1-4186-b1d6-9c7bd6ee3b6d">
+<img width="1022" alt="mongo_dependency" src="https://github.com/earchibong/springboot_project/assets/92983658/6c62b653-264a-49d1-ad78-b0132bdc6f08">
 
 <br>
 
