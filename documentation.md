@@ -4,7 +4,9 @@ As per the client's request, the app had to be deployed on AWS. I chose `AWS ela
 `Elastic Beanstalk` will create an EC2 instance as a compute resource and `S3` for storage of code(this will be optional in this configuration because the code base is already being sotred in a Github repository). In addition, it will create Security groups, Load balancers, Target groups and etc… Basically it will create a fully fledged scalable environment for the web application.
 
 <br>
-## Prject Steps:
+
+## Project Steps:
+
 - <a href=" ">Clone the GitHub repository containing the Java Spring Boot application</a>
 - 
 
@@ -32,7 +34,9 @@ To load an embedded MongoDB with Spring Boot, all that is needed is to add its m
 
 <img width="1027" alt="pom" src="https://github.com/earchibong/springboot_project/assets/92983658/bfc0a048-03a1-4186-b1d6-9c7bd6ee3b6d">
 
+
 <br>
+
 
 - ensure to update the health controller as follows:
 
