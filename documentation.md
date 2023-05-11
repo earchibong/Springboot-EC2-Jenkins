@@ -120,10 +120,20 @@ Elastic beanstalk by default provides an EC2 instance that runs `Nginx as revers
 
 <br>
 
-<img width="823" alt="mongo_uri" src="https://github.com/earchibong/springboot_project/assets/92983658/03e60b5d-d8c2-4056-9dab-3d1c5d941e48">
+<img width="823" alt="mongo_uri" src="https://github.com/earchibong/springboot_project/assets/92983658/eb233ffb-5eda-4852-95b4-4138d4f671d8">
 
 <br>
 
+## Build Application Jar
+We need to create a JAR file that will be used to create the docker image and subsequently create the application on beanstalk. For that, the below maven command can be used. Then you can find the JAR inside /target folder.
+
+To avoid build failures, I am skipping the tests for now.
+
+```
+
+mvn clean install -DskipTests
+
+```
 
 
 
