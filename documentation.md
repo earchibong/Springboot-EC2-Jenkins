@@ -19,6 +19,7 @@ As per the client's request, the app had to be deployed on AWS. I chose `AWS ela
 $ git clone https://github.com/alexturcot/sample-spring-boot-data-mongodb-embedded.git
 
 ```
+
 I'm using a sample application from <a href="https://github.com/alexbt/sample-spring-boot-data-mongodb-embedded">alexbt</a> configured with `Mongo-DB` already embedded.
 
 *Note: When using `AWS Elastic Beanstalk` this configuration of embedding `mongodb` is important because we cannot connect a NoSQL database to `Elastic Beanstalk`. The reason for that is Beanstalk is currently not accepting NoSQL databases for selection. Let me explain that.*
@@ -34,11 +35,9 @@ To load an embedded MongoDB with Spring Boot, all that is needed is to add its m
 
 <img width="1027" alt="pom" src="https://github.com/earchibong/springboot_project/assets/92983658/bfc0a048-03a1-4186-b1d6-9c7bd6ee3b6d">
 
-
 <br>
 
-
-- ensure to update the health controller as follows:
+- update the health controller as follows:
 
 ```
 
@@ -77,5 +76,40 @@ Elastic beanstalk by default provides an EC2 instance that runs `Nginx as revers
 
 <br>
 
-To get the mongoDb uri
+**To get the mongoDb uri**
+- sign up to < a href="https://www.mongodb.com/cloud/atlas/register"> `mongodb`</a>
+- deploy your database
+
+<br>
+
+<img width="1387" alt="deploy_cluster_1a" src="https://github.com/earchibong/springboot_project/assets/92983658/0b1ba567-37ff-4c4b-bc16-5a315e2c9fdc">
+
+<br>
+
+<img width="1374" alt="create_cluster_1b" src="https://github.com/earchibong/springboot_project/assets/92983658/745d398c-bb44-4d9a-9613-4cb35f3a998b">
+
+<br>
+
+<img width="1390" alt="create_cluster_1c" src="https://github.com/earchibong/springboot_project/assets/92983658/935d2857-0ecc-4908-89df-152cc3c6c918">
+
+<br>
+
+- click the connect button to explore connection options. for this project, we will use the `drivers` option. So copy the connection string provided at add to the application layer in the app code base.
+
+<br>
+
+<img width="1383" alt="mongo_connect_1a" src="https://github.com/earchibong/springboot_project/assets/92983658/7891619d-7b66-4767-a0e3-bd6fce765d19">
+
+<br>
+
+<img width="1390" alt="mongo_connect_1b" src="https://github.com/earchibong/springboot_project/assets/92983658/6d1a9cb6-d707-4eaa-9052-ca61c7fbd780">
+
+<br>
+
+<img width="823" alt="mongo_uri" src="https://github.com/earchibong/springboot_project/assets/92983658/03e60b5d-d8c2-4056-9dab-3d1c5d941e48">
+
+<br>
+
+
+
 
