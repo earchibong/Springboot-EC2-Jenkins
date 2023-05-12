@@ -64,16 +64,6 @@ management.endpoint.health.enabled=true
 management.endpoint.health.show-details=never
 management.health.status.http-mapping.UP=200
 
-# in controller.java file add the following:
-@RestController
-public class HealthController {
-    @GetMapping("/health")
-        public String healthCheck() {
-   return "OK";
-}
-
-}
-
 
 ```
 
@@ -84,6 +74,30 @@ public class HealthController {
 
 
 <br>
+
+- create new file `HealthController.java` in `src/main//java` directory and add the following:
+
+```
+
+package com.alexbt.mongodb;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class HealthController {
+
+    @GetMapping("/health")
+    public String healthCheck() {
+        return "OK";
+    }
+
+}
+
+
+```
+
+
 
 <br>
    
