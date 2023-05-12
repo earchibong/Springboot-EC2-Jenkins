@@ -39,6 +39,7 @@ To load an embedded MongoDB with Spring Boot, all that is needed is to add its m
 
 <br>
 
+
 - configure a health endpoint for AWS Elastic Beanstalk health checks.
 The reason for this endpoint is that the `Elastic Beanstalk` load balancer uses path “/” by default for health checks. If you don’t have that path defined in the controller, the application will keep failing health checks and will show Severe as status in dashboard
 
@@ -84,7 +85,8 @@ public class HealthController {
 
 <br>
 
-
+<br>
+   
 - Open the `application.properties` file located in `src/main/resources`. Update the `MongoDB URI` to point to your MongoDB instance
 
 ```
