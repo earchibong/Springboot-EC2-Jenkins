@@ -33,7 +33,7 @@ To load an embedded MongoDB with Spring Boot, all that is needed is to add its m
 
 <br>
 
-<img width="1022" alt="mongo_dependency" src="https://github.com/earchibong/springboot_project/assets/92983658/6c62b653-264a-49d1-ad78-b0132bdc6f08">
+<img width="1027" alt="mongo_dependency" src="https://github.com/earchibong/springboot_project/assets/92983658/217c8a83-b7f7-4ced-908b-85186492cd5e">
 
 <br>
 
@@ -57,16 +57,12 @@ public class HealthController {
 
 <br>
 
-- Connect MongoDB using AtlasDB. Update the `application` layer as follows:
+- Open the `application.properties` file located in `src/main/resources`. Update the `MongoDB URI` to point to your MongoDB instance
 
 ```
 
-server:
-  port: 5000
-spring:
-  data:
-    mongodb:
-      uri: mongodb+srv://<username>:<password>@<cluster>.mongodb.net/order-db?retryWrites=true&w=majority
+spring.data.mongodb.uri=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/order-db?retryWrites=true&w=majority
+server.port=5000
       
 ```
 
@@ -131,11 +127,21 @@ We need to create a JAR file that will be used to create the docker image and su
 
 To avoid build failures, I am skipping the tests for now.
 
-```
-
-mvn clean install -DskipTests
+- Open the command prompt/terminal and navigate to the project root directory
 
 ```
+
+# mvn clean install -DskipTests
+mvn package -Dmaven.test.skip.exec
+
+
+```
+
+<br>
+
+<img width="1470" alt="mvn_package" src="https://github.com/earchibong/springboot_project/assets/92983658/fc0e95a9-c431-4466-a1ee-27eecb816f78">
+
+<br>
 
 
 
