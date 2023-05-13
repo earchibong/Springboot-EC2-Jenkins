@@ -7,106 +7,63 @@ Java Spring Boot App. Database will Be MongoDB. Security Provider is Keycloak. C
 
 <br>
 
+There are several service options for deploying this setup to AWS and they include:
+
+- **Elastic Beanstalk:** This service is a Platform-as-a-Service (PaaS) that allows you to quickly deploy and manage web applications. Elastic Beanstalk provides a simple and fast way to deploy Java applications, including Spring Boot applications, to AWS. To deploy the application using Elastic Beanstalk, you can use the AWS Management Console or the AWS CLI.
+
+- **Amazon ECS:** This service is a fully-managed container orchestration service that supports Docker containers. You can use Amazon ECS to deploy and manage Docker containers that run your Spring Boot application. This option requires more setup and configuration than Elastic Beanstalk, but it provides greater flexibility and control over your infrastructure.
+
+- **AWS Lambda:** This service allows you to run your code without provisioning or managing servers. You can use AWS Lambda to deploy the Spring Boot application as a serverless application. However, this option is mostly ideal for applications that have low traffic and short execution times. If the application has more complex dependencies, requires longer execution times, or has high traffic, AWS Lambda may not be the best option.
+
+In this case, I decided to go with `Amazon ECS` because of the flexibility and infrastructure control it offers but without the additional complexity of managing a Kubernetes cluster.
+
+<br>
+
+
+**Here's the proposed architecture:**
+
+<br>
+
+![image](https://github.com/earchibong/springboot_project/assets/92983658/89976418-b666-4409-83aa-66ea61c53487)
+
+<br>
+
+
 ## Here are my proposed steps for this configuration:
 
+Here are the steps to set up a Jenkins CI/CD pipeline to AWS ECR and ECS for your Java Spring Boot app with MongoDB and Keycloak:
 
-To set up a Jenkins CI/CD pipeline for a Java Spring Boot application with MongoDB as the database and Keycloak for security, you can follow the steps below:
+1. Set up an EC2 instance with Docker and Jenkins installed. 
 
-1. Clone the GitHub repository containing the Java Spring Boot application.
+2. Create an IAM user for Jenkins to access AWS services. Give the user the necessary permissions to access ECR and ECS.
 
-2. Create a Dockerfile for the application.
+3. Create an ECR repository for Docker image.
 
-```Dockerfile
-# Base image
-FROM openjdk:11-jdk-slim
+4. Create a Dockerfile for the application.
 
-# Create app directory
+```
+
+FROM openjdk:11-jdk
+
 WORKDIR /app
 
-# Copy application JAR to the container
-COPY target/my-app.jar .
+COPY target/myapp.jar /app
 
-# Expose port 8080
 EXPOSE 8080
 
-# Run the app
-CMD ["java", "-jar", "my-app.jar"]
+ENTRYPOINT ["java", "-jar", "/app/myapp.jar"]
+
+
 ```
 
-This Dockerfile assumes that you have already built the application JAR using `mvn clean package`.
+This Dockerfile uses the official OpenJDK 11 image as the base, copies your Spring Boot app's JAR file into the container, and sets the entry point to start the app.
 
-3. Create an AWS Elastic Beanstalk environment to deploy the application.
+5. Create a Jenkins job for your CI/CD pipeline. Here's an overview of the steps you can include in the job:
 
-4. Create an ECR repository to store the Docker image.
+- Check out the source code from your GitHub repository.
+- Build the Spring Boot app with Maven or Gradle.
+- Build the Docker image and tag it with the ECR repository URL.
+- Push the Docker image to the ECR repository.
+- Deploy the Docker image to ECS using a task definition and a service.
 
-5. Install Jenkins on an EC2 instance or a server.
-
-6. Install the necessary plugins for the pipeline: Git, Maven, Docker, Keycloak, AWS Elastic Beanstalk.
-
-7. Create a Jenkins pipeline job and configure the pipeline to use the GitHub repository as the source.
-
-8. Set up the pipeline to build the application using Maven and package it into a JAR.
-
-9. Build a Docker image using the Dockerfile and the JAR file, and push it to the ECR repository.
-
-```Jenkinsfile
-pipeline {
-  agent {
-    docker {
-      image 'maven:3.8-jdk-11'
-      args '-v /root/.m2:/root/.m2'
-    }
-  }
-  stages {
-    stage('Build') {
-      steps {
-        sh 'mvn clean package'
-      }
-    }
-    stage('Docker Build and Push') {
-      steps {
-        withCredentials([[
-          credentialsId: 'aws-ecr-creds',
-          accessKeyVariable: 'AWS_ACCESS_KEY_ID',
-          secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
-        ]]) {
-          sh 'docker build -t my-app .'
-          sh 'docker tag my-app:latest <your-ecr-repository-url>/my-app:latest'
-          sh 'docker push <your-ecr-repository-url>/my-app:latest'
-        }
-      }
-    }
-    stage('Deploy to Elastic Beanstalk') {
-      when {
-        branch 'main'
-      }
-      environment {
-        AWS_ACCESS_KEY_ID = credentials('aws-access-key-id')
-        AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
-        APP_NAME = 'my-app'
-        ENV_NAME = 'my-app-env'
-        DOCKER_IMAGE = "<your-ecr-repository-url>/my-app:latest"
-      }
-      steps {
-        ebDeploy(
-          awsAccessKeyId: AWS_ACCESS_KEY_ID,
-          awsSecretAccessKey: AWS_SECRET_ACCESS_KEY,
-          region: 'us-east-1',
-          applicationName: APP_NAME,
-          environmentName: ENV_NAME,
-          versionLabel: 'jenkins-' + env.BUILD_NUMBER,
-          description: 'Deploying my-app from Jenkins',
-          sourceBundle: '',
-          additionalArguments: "--image-url $DOCKER_IMAGE"
-        )
-      }
-    }
-  }
-}
-```
-
-10. Set up Keycloak for authentication and authorization, and configure the application to use Keycloak for security.
-
-11. Test the pipeline by making a code change and pushing it to the GitHub repository. The pipeline should automatically build and deploy the updated application to Elastic Beanstalk.
-
-Note that this pipeline assumes that you have already set up the necessary infrastructure components, including the AWS Elastic Beanstalk environment, the ECR repository, and the Keycloak server.
+<br>
