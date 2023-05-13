@@ -11,6 +11,7 @@ As per the project scope, the app had to be deployed on AWS. I chose AWS Elastic
 ## Project Steps:
 - <a href=" ">Set up an EC2 instance with Docker and Jenkins installed.</a>
 - <a href="https://github.com/earchibong/springboot_project/blob/main/documentation.md#create-an-iam-user-for-jenkins-to-access-aws-services">Create an IAM user for Jenkins to access AWS services</a>
+- <a href="https://github.com/earchibong/springboot_project/blob/main/documentation.md#create-an-ecr-repository-for-docker-image">Create an ECR repository for Docker image</a>
 
 <br>
 
@@ -136,6 +137,19 @@ Follow instruction on jenkins management interface
 - Amazon ECR, 
 - Docker pipeline 
 - Blue ocean
+- Github integration
+
+# link github repo to jenkins
+# add github personal access token jenkins
+
+- Select "Credentials" in the right hand sidebar.
+- Select "Global credentials (unrestricted)" Note: these credentials are only available to projects in your folder.
+- Add credentials.
+- kind: "username and password"
+- username: your github user name.
+- password: enter github password
+
+
 
 ```
 
@@ -146,6 +160,14 @@ Follow instruction on jenkins management interface
 <br>
 
 <br>
+
+<img width="1387" alt="jenkins_github_credentials" src="https://github.com/earchibong/springboot_project/assets/92983658/880ef23e-3abe-4897-8e60-12d3af2284bc">
+
+
+<br>
+
+<br>
+
 
 ## Create an IAM user for Jenkins to access AWS services
 - Give the user IAM user the necessary permissions to access ECR and ECS.
@@ -178,10 +200,23 @@ aws ecr create-repository --repository-name ecs-local --image-scanning-configura
 
 <img width="1388" alt="ecr_repo" src="https://github.com/earchibong/springboot_project/assets/92983658/6a02bd66-ee92-4b3e-a990-79818678e1d6">
 
-
 <br>
 
+<br>
 
 <img width="1385" alt="ecr_verify" src="https://github.com/earchibong/springboot_project/assets/92983658/e4045010-22f7-4a54-8bbb-ba92db747b3b">
 
 <br>
+
+<br>
+
+## Clone the GitHub repository containing the Java Spring Boot application.
+```
+
+git clone https://github.com/ramya1703/mongodb-springboot/tree/main
+
+```
+
+I'm using a sample application from <a href="https://github.com/ramya1703/mongodb-springboot/tree/main
+">Ramya1703</a> configured with Mongo-DB already embedded.
+
