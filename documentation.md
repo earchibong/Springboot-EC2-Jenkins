@@ -10,6 +10,7 @@ As per the project scope, the app had to be deployed on AWS. I chose AWS Elastic
 
 ## Project Steps:
 - <a href=" ">Set up an EC2 instance with Docker and Jenkins installed.</a>
+- <a href="https://github.com/earchibong/springboot_project/blob/main/documentation.md#create-an-iam-user-for-jenkins-to-access-aws-services">Create an IAM user for Jenkins to access AWS services</a>
 
 <br>
 
@@ -144,12 +145,14 @@ Follow instruction on jenkins management interface
 
 <br>
 
+<br>
+
 ## Create an IAM user for Jenkins to access AWS services
 - Give the user IAM user the necessary permissions to access ECR and ECS.
 
-I already have a user `terraform jenkins` that was created prerviously so i'm going to add permissions for ECR and ECS
+I already have a user `terraform jenkins` that was created prerviously so i'm going to add permissions for ECR and ECS. However, here are the steps for creating a user and attaching permissions:
 
-- in `iam` consolse, create a user group `admin`
+- in `iam` console, create a user group `admin`
 - click `add permissions`
 - select the permission to add to the user group: 
     - ECS: `AmazonECS_FullAccess`
@@ -162,3 +165,23 @@ I already have a user `terraform jenkins` that was created prerviously so i'm go
 
 <br>
 
+<br>
+
+## Create an ECR repository for Docker image.
+```
+
+aws ecr create-repository --repository-name ecs-local --image-scanning-configuration scanOnPush=true --region eu-west-2
+
+```
+
+<br>
+
+<img width="1388" alt="ecr_repo" src="https://github.com/earchibong/springboot_project/assets/92983658/6a02bd66-ee92-4b3e-a990-79818678e1d6">
+
+
+<br>
+
+
+<img width="1385" alt="ecr_verify" src="https://github.com/earchibong/springboot_project/assets/92983658/e4045010-22f7-4a54-8bbb-ba92db747b3b">
+
+<br>
