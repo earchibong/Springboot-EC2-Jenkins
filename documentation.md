@@ -55,15 +55,18 @@ sudo docker info
 
 <br>
 
+
 <img width="1253" alt="docker_start" src="https://github.com/earchibong/springboot_project/assets/92983658/97f9327d-68eb-421f-a8de-8c0fa80ab849">
 
 <br>
+
 
 <img width="1381" alt="docker_verify" src="https://github.com/earchibong/springboot_project/assets/92983658/d0d867a0-f797-4fba-92b3-1c4fe2af1285">
 
 <br>
 
-*note: control docker service with the following commands
+
+*note: control docker service with the following commands*
 
 ```
 
@@ -112,4 +115,50 @@ sudo systemctl status jenkins
 
 <br>
 
+- configure jenkins
+
+```
+
+# access Jenkins through its management interface:
+http://<your_server_public_DNS>:8080
+
+# enter the password found in **/var/lib/jenkins/secrets/initialAdminPassword.**
+sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+
+# Install suggested plugins
+# Create First Admin User
+Follow instruction on jenkins management interface
+
+# install docker plugins to build and push the Docker image to Docker Hub and ECR
+# install the following plugins:
+- CloudBees Docker Build and Publish, 
+- Amazon ECR, 
+- Docker pipeline 
+- Blue ocean
+
+```
+
+<br>
+
+<img width="1388" alt="jenkins_plugins" src="https://github.com/earchibong/springboot_project/assets/92983658/60f324e4-a7d2-4f1c-bc5e-d93fcf823494">
+
+<br>
+
+## Create an IAM user for Jenkins to access AWS services
+- Give the user IAM user the necessary permissions to access ECR and ECS.
+
+I already have a user `terraform jenkins` that was created prerviously so i'm going to add permissions for ECR and ECS
+
+- in `iam` consolse, create a user group `admin`
+- click `add permissions`
+- select the permission to add to the user group: 
+    - ECS: `AmazonECS_FullAccess`
+    - ECR: `EC2InstanceProfileForImageBuilderECRContainerBuilds`
+- under the `admin` usergroup, create a new user (in my case, `terraform-jenkins`) to make use of the permissions attached to the group
+
+<br>
+
+<img width="1385" alt="iam_user_permissions" src="https://github.com/earchibong/springboot_project/assets/92983658/783a1b9e-4494-4430-bd2a-5ef7611938c6">
+
+<br>
 
