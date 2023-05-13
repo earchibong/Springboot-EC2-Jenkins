@@ -117,6 +117,8 @@ sudo systemctl status jenkins
 
 <br>
 
+<br>
+
 - configure jenkins
 
 ```
@@ -139,23 +141,24 @@ Follow instruction on jenkins management interface
 - Blue ocean
 - Github integration
 
-# link github repo to jenkins
-# add github personal access token jenkins
-
-- Select "Credentials" in the right hand sidebar.
-- Select "Global credentials (unrestricted)" Note: these credentials are only available to projects in your folder.
-- Add credentials.
-- kind: "username and password"
-- username: your github user name.
-- password: enter github password
-
-
 
 ```
 
 <br>
 
 <img width="1388" alt="jenkins_plugins" src="https://github.com/earchibong/springboot_project/assets/92983658/60f324e4-a7d2-4f1c-bc5e-d93fcf823494">
+
+<br>
+
+<br>
+
+- link github repo to jenkins
+    - Select "Credentials" in the right hand sidebar.
+    - Select "Global credentials (unrestricted)" Note: these credentials are only available to projects in your folder.
+    - Add credentials.
+    - kind: "username and password"
+    - username: your github user name.
+    - password: enter github password
 
 <br>
 
