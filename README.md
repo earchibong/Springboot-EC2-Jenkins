@@ -41,23 +41,6 @@ Here are the steps to set up a Jenkins CI/CD pipeline to AWS ECR and ECS for you
 
 4. Create a Dockerfile for the application.
 
-```
-
-FROM openjdk:11-jdk
-
-WORKDIR /app
-
-COPY target/myapp.jar /app
-
-EXPOSE 8080
-
-ENTRYPOINT ["java", "-jar", "/app/myapp.jar"]
-
-
-```
-
-This Dockerfile uses the official OpenJDK 11 image as the base, copies your Spring Boot app's JAR file into the container, and sets the entry point to start the app.
-
 5. Create a Jenkins job for your CI/CD pipeline. Here's an overview of the steps you can include in the job:
 
 - Check out the source code from your GitHub repository.
