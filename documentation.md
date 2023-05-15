@@ -12,6 +12,8 @@ As per the project scope, the app had to be deployed on AWS. I chose AWS Elastic
 - <a href=" ">Set up an EC2 instance with Docker and Jenkins installed.</a>
 - <a href="https://github.com/earchibong/springboot_project/blob/main/documentation.md#create-an-iam-user-for-jenkins-to-access-aws-services">Create an IAM user for Jenkins to access AWS services</a>
 - <a href="https://github.com/earchibong/springboot_project/blob/main/documentation.md#create-an-ecr-repository-for-docker-image">Create an ECR repository for Docker image</a>
+- <a href="https://github.com/earchibong/springboot_project/blob/main/documentation.md#clone-the-github-repository-containing-the-java-spring-boot-application">Embed MongoDB in Java Application</a>
+- 
 
 <br>
 
@@ -24,7 +26,7 @@ As per the project scope, the app had to be deployed on AWS. I chose AWS Elastic
 
 <br>
 
-- software packages are up to date
+- ensure software packages are up to date and port `8080` is open
 
 ```
 
@@ -182,6 +184,7 @@ I already have a user `terraform jenkins` that was created prerviously so i'm go
 - select the permission to add to the user group: 
     - ECS: `AmazonECS_FullAccess`
     - ECR: `EC2InstanceProfileForImageBuilderECRContainerBuilds`
+    - EC2: `AmazonEC2ContainerRegistryFullAccess`
 - under the `admin` usergroup, create a new user (in my case, `terraform-jenkins`) to make use of the permissions attached to the group
 
 <br>
@@ -191,6 +194,7 @@ I already have a user `terraform jenkins` that was created prerviously so i'm go
 <br>
 
 <br>
+
 
 ## Create an ECR repository for Docker image.
 ```
@@ -213,13 +217,102 @@ aws ecr create-repository --repository-name ecs-local --image-scanning-configura
 
 <br>
 
-## Clone the GitHub repository containing the Java Spring Boot application.
+## Configure Springboot file to embed MongoDB
+
+- clone the app repository
 ```
 
-git clone https://github.com/ramya1703/mongodb-springboot/tree/main
+git clone https://github.com/alexturcot/sample-spring-boot-data-mongodb-embedded.git
 
 ```
 
-I'm using a sample application from <a href="https://github.com/ramya1703/mongodb-springboot/tree/main
-">Ramya1703</a> configured with Mongo-DB already embedded.
+I'm using a sample application from <a href="https://github.com/alexbt/sample-spring-boot-data-mongodb-embedded">alexbt</a> configured with Mongo-DB already embedded. However,we will still ensure it mongodb is embedded.
 
+To load an embedded MongoDB with Spring Boot, all that is needed is to add its maven dependency into the pom. Open the `pom.xml` file and confirm that the mongodb maven dependency is included in the file
+
+<br>
+
+![image](https://github.com/earchibong/springboot_project/assets/92983658/572b281c-6dd7-4201-a97a-e9dfb5b445e0)
+
+<br>
+
+- Open the `application.properties` file located in src/main/resources. Update the MongoDB URI to point to your MongoDB instance with value: `mongodb://mongo/mydb`
+
+<br>
+
+
+<img width="1034" alt="application_properties_mongo" src="https://github.com/earchibong/springboot_project/assets/92983658/f2c2843c-b487-417a-a216-56d9eaa69621">
+
+
+<br>
+
+<br>
+
+## Create a Dockerfile For The Application
+In the application folder, create a folder named `app` and then create a docker file in the `app` directory. Add the following to the  docker file:
+
+```
+
+FROM openjdk:11-jdk
+
+WORKDIR /app
+
+COPY target/mongodb-springboot.jar /app
+
+EXPOSE 8080
+
+ENTRYPOINT ["java", "-jar", "/mongodb-springboot.jar"]
+
+```
+
+<br>
+
+This Dockerfile uses the official `OpenJDK 11 image` as the base, copies the Spring Boot app's JAR file into the container, and sets the entry point to start the app.
+
+<br>
+
+<br>
+
+<img width="1107" alt="dockerfile" src="https://github.com/earchibong/springboot_project/assets/92983658/6a8003a9-014f-423b-9021-f3e793d9b7a3">
+
+<br>
+
+<br>
+
+## Create A Jenkins Job For The CI/CD Pipeline
+
+- grant permissions to `jenkins` to gain access to docker
+After you've connected to `Jenkins` instance on your terminal, add the following in the command line:
+
+```
+
+sudo groupadd docker
+sudo usermod -aG docker $USER
+sudo chmod 777 /var/run/docker.sock
+
+```
+
+- Configure Jenkins pipeline: Go to the Jenkins Dashboard and create new job
+    - Enter the name of the job and select the type of job you wish to run on Jenkins.
+    - Select the `Free-style` option to to automate the tasks in your pipeline.
+
+<br>
+
+<img width="1391" alt="jenkins_1a" src="https://github.com/earchibong/springboot_project/assets/92983658/86ab5b41-1d15-4e74-9869-44a5665d55a2">
+
+<br>
+
+- Source Code Management: `git`
+- enter your `git credentials` (you can use username and password) and `git repository`...then validate
+
+<br>
+
+
+
+
+Here's an overview of the steps that will be included in the job:
+    - Check out the source code from the GitHub repository.
+    - Build the Spring Boot app with Maven or Gradle.
+    - Build the Docker image and tag it with the ECR repository URL.
+    - Push the Docker image to the ECR repository.
+    - Deploy the Docker image to ECS using a task definition and a service.
