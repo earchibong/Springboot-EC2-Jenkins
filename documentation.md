@@ -84,6 +84,17 @@ sudo systemctl status docker.service #<-- get the service status
 <br>
 
 
+- install git
+
+```
+
+sudo yum install git
+
+```
+
+<br>
+
+
 - install and run jenkins
 
 ```
@@ -141,8 +152,6 @@ Follow instruction on jenkins management interface
 - Amazon ECR, 
 - Docker pipeline 
 - Blue ocean
-- Github integration
-
 
 ```
 
@@ -160,8 +169,7 @@ Follow instruction on jenkins management interface
     - Add credentials.
     - kind: "username and password"
     - username: your github user name.
-    - password: enter github password
-
+    - password: enter < a href="https://docs.github.com/en/enterprise-server@3.4/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token">github personal access token</a>
 <br>
 
 <br>
@@ -217,7 +225,7 @@ aws ecr create-repository --repository-name ecs-local --image-scanning-configura
 
 <br>
 
-## Configure Springboot file to embed MongoDB
+## Configure Springboot App POM file to embed MongoDB
 
 - clone the app repository
 ```
@@ -281,6 +289,14 @@ This Dockerfile uses the official `OpenJDK 11 image` as the base, copies the Spr
 
 ## Create A Jenkins Job For The CI/CD Pipeline
 
+Here's an overview of the steps that will be included in the job:
+    - Check out the source code from the GitHub repository.
+    - Build the Spring Boot app with Maven or Gradle.
+    - Build the Docker image and tag it with the ECR repository URL.
+    - Push the Docker image to the ECR repository.
+    - Deploy the Docker image to ECS using a task definition and a service.
+    
+    
 - grant permissions to `jenkins` to gain access to docker
 After you've connected to `Jenkins` instance on your terminal, add the following in the command line:
 
@@ -303,16 +319,13 @@ sudo chmod 777 /var/run/docker.sock
 <br>
 
 - Source Code Management: `git`
-- enter your `git credentials` (you can use username and password) and `git repository`...then validate
+    - enter git repo url and credentials
+    - specify repo branch... my files are on the `*/main` branch
+
+- Build triggers: `GitHub hook trigger for GITScm polling`
+    - configure <a href="https://docs.github.com/en/webhooks-and-events/webhooks/creating-webhooks">webhook on Github here</a>
+
 
 <br>
 
 
-
-
-Here's an overview of the steps that will be included in the job:
-    - Check out the source code from the GitHub repository.
-    - Build the Spring Boot app with Maven or Gradle.
-    - Build the Docker image and tag it with the ECR repository URL.
-    - Push the Docker image to the ECR repository.
-    - Deploy the Docker image to ECS using a task definition and a service.
