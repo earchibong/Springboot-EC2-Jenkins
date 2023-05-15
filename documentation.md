@@ -289,6 +289,11 @@ This Dockerfile uses the official `OpenJDK 11 image` as the base, copies the Spr
 
 ## Create A Jenkins Job For The CI/CD Pipeline
 
+- in the root directory of your app file, create a file named `Jenkinsfile`
+- create the Jenkinsfile as follows:
+
+<br>
+
 Here's an overview of the steps that will be included in the job:
     - Check out the source code from the GitHub repository.
     - Build the Spring Boot app with Maven or Gradle.
@@ -296,7 +301,91 @@ Here's an overview of the steps that will be included in the job:
     - Push the Docker image to the ECR repository.
     - Deploy the Docker image to ECS using a task definition and a service.
     
-    
+
+<br>
+
+```
+
+pipeline {
+  environment {
+    ECR_REGISTRY = "123456789012.dkr.ecr.us-west-2.amazonaws.com"
+    IMAGE_NAME = "myapp"
+    IMAGE_TAG = "latest"
+    AWS_REGION = "us-west-2"
+    ECS_CLUSTER = "my-cluster"
+    ECS_SERVICE = "my-service"
+    DOCKERFILE = "Dockerfile"
+    MAVEN_OPTS = "-Dmaven.repo.local=$WORKSPACE/.m2"
+  }
+  agent any
+  stages {
+    stage('Checkout') {
+      steps {
+        checkout scm
+      }
+    }
+    stage('Build') {
+      steps {
+        sh "mvn -f ${env.WORKSPACE}/pom.xml clean package -DskipTests"
+        archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+      }
+    }
+    stage('Build Docker image') {
+      steps {
+        script {
+          docker.withRegistry("https://${ECR_REGISTRY}", 'ecr') {
+            def appImage = docker.build("${ECR_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}", "--file ${DOCKERFILE} ${env.WORKSPACE}")
+            appImage.push()
+          }
+        }
+      }
+    }
+    stage('Deploy') {
+      steps {
+        script {
+          def ecsParams = [
+            containerDefinitions: [
+              [
+                name: "myapp",
+                image: "${ECR_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}",
+                essential: true,
+                portMappings: [
+                  [
+                    containerPort: 8080,
+                    hostPort: 0,
+                    protocol: "tcp"
+                  ]
+                ],
+                environment: [
+                  [
+                    name: "SPRING_DATA_MONGODB_URI",
+                    value: "mongodb://mongo/mydb"
+                  ],
+                  [
+                    name: "KEYCLOAK_AUTH_SERVER_URL",
+                    value: "http://keycloak:8080/auth"
+                  ],
+                  [
+                    name: "KEYCLOAK_REALM",
+                    value: "myrealm"
+                  ],
+                  [
+                    name: "KEYCLOAK_RESOURCE",
+                    value: "myapp"
+                  ]
+                ]
+              ]
+            ],
+            taskRoleArn: "arn:aws:iam::123456789012:role/ecsTaskExecutionRole",
+            family: "
+
+
+```
+
+<br>
+
+<br>
+
 - grant permissions to `jenkins` to gain access to docker
 After you've connected to `Jenkins` instance on your terminal, add the following in the command line:
 
@@ -310,22 +399,50 @@ sudo chmod 777 /var/run/docker.sock
 
 - Configure Jenkins pipeline: Go to the Jenkins Dashboard and create new job
     - Enter the name of the job and select the type of job you wish to run on Jenkins.
-    - Select the `Free-style` option to to automate the tasks in your pipeline.
+    - Select the `pipeline` option to to automate the tasks in your pipeline.
 
 <br>
 
-<img width="1391" alt="jenkins_1a" src="https://github.com/earchibong/springboot_project/assets/92983658/86ab5b41-1d15-4e74-9869-44a5665d55a2">
+<img width="1391" alt="pipeline" src="https://github.com/earchibong/springboot_project/assets/92983658/e1f63aab-fa96-40b3-a6f8-8020f7340ff5">
 
 <br>
 
-- Source Code Management: `git`
-    - enter git repo url and credentials
-    - specify repo branch... my files are on the `*/main` branch
 
 - Build triggers: `GitHub hook trigger for GITScm polling`
     - configure <a href="https://docs.github.com/en/webhooks-and-events/webhooks/creating-webhooks">webhook on Github here</a>
+    - when creating webhook on github select:
+     - payload url should be `http` not `https`
+     - select `x-www-form-urlencoded ` content type
+     - disable `ssl` for now as there is no certificate attached to jenkins
+     - ensure that ports `22`, `80` and `443` are open in your jenkins security group
+     - add the following `github webhook ip` over port `8080` in your ec2 security group settings:
+     ```
+     
+    192.30.252.0/22
+    185.199.108.0/22
+    140.82.112.0/20
+    
+    ```
 
 
 <br>
+
+<img width="1388" alt="webhook-1" src="https://github.com/earchibong/springboot_project/assets/92983658/9d75747d-6f98-47e8-ad6c-ecbbb261dcd3">
+
+
+<br>
+
+
+<img width="1294" alt="github-webhook-security" src="https://github.com/earchibong/springboot_project/assets/92983658/2fb5a18b-3ed3-488e-97c1-02dd3e728f24">
+
+<br>
+
+- Pipeline: `Pipeline script from scm`
+    - scm: `git`
+    - enter repository url and github credentials
+    - branch : reposority branch your project is stored on..in my case `*/main`
+
+- Script Path: `Jenkinsfile`
+
 
 
