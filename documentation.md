@@ -256,6 +256,58 @@ To load an embedded MongoDB with Spring Boot, all that is needed is to add its m
 
 <br>
 
+
+In this config. i'm using the mongodb service provider `Mongo Atlas` so to get the `mongodb uri`...
+
+**To get the mongoDb uri**
+- sign up to <a href="https://www.mongodb.com/cloud/atlas/register"> `mongodb`</a>
+- deploy your database
+
+<br>
+
+<img width="1387" alt="deploy_cluster_1a" src="https://github.com/earchibong/springboot_project/assets/92983658/0b1ba567-37ff-4c4b-bc16-5a315e2c9fdc">
+
+<br>
+
+<br>
+
+<img width="1374" alt="create_cluster_1b" src="https://github.com/earchibong/springboot_project/assets/92983658/745d398c-bb44-4d9a-9613-4cb35f3a998b">
+
+<br>
+
+<br>
+
+<img width="1390" alt="create_cluster_1c" src="https://github.com/earchibong/springboot_project/assets/92983658/935d2857-0ecc-4908-89df-152cc3c6c918">
+
+
+
+<br>
+
+- click the connect button to explore connection options. for this project, we will use the `drivers` option. So copy the connection string provided at add to the application layer in the app code base.
+
+<br>
+
+<br>
+
+<img width="1383" alt="mongo_connect_1a" src="https://github.com/earchibong/springboot_project/assets/92983658/7891619d-7b66-4767-a0e3-bd6fce765d19">
+
+<br>
+
+<br>
+
+<img width="1390" alt="mongo_connect_1b" src="https://github.com/earchibong/springboot_project/assets/92983658/6d1a9cb6-d707-4eaa-9052-ca61c7fbd780">
+
+<br>
+
+<br>
+
+<img width="823" alt="mongo_uri" src="https://github.com/earchibong/springboot_project/assets/92983658/eb233ffb-5eda-4852-95b4-4138d4f671d8">
+
+<br>
+
+<br>
+
+
 ## Create a Dockerfile For The Application
 In the application folder, create a folder named `app` and then create a docker file in the `app` directory. Add the following to the  docker file:
 
