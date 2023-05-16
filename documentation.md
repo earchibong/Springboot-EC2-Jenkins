@@ -10,9 +10,11 @@ As per the project scope, the app had to be deployed on AWS. I chose AWS Elastic
 
 ## Project Steps:
 - <a href=" ">Set up an EC2 instance with Docker and Jenkins installed.</a>
-- <a href="https://github.com/earchibong/springboot_project/blob/main/documentation.md#create-an-iam-user-for-jenkins-to-access-aws-services">Create an IAM user for Jenkins to access AWS services</a>
+- <a href="https://github.com/earchibong/springboot_project/blob/main/documentation.md#create-an-iam-user-for-jenkins-to-access-aws-services">Create an IAM 
+user For Jenkins To Access AWS Services</a>
 - <a href="https://github.com/earchibong/springboot_project/blob/main/documentation.md#create-an-ecr-repository-for-docker-image">Create an ECR repository for Docker image</a>
 - <a href="https://github.com/earchibong/springboot_project/blob/main/documentation.md#clone-the-github-repository-containing-the-java-spring-boot-application">Embed MongoDB in Java Application</a>
+- <a href="https://github.com/earchibong/springboot_project/blob/main/documentation.md#create-a-jenkins-job-for-the-cicd-pipeline">Create Jenkins Job For CI/CD Pipeline</a>
 - 
 
 <br>
@@ -338,6 +340,8 @@ This Dockerfile uses the official `OpenJDK 11 image` as the base, copies the Spr
 <br>
 
 <br>
+
+## Create ECS Service And Cluster
 
 ## Create A Jenkins Job For The CI/CD Pipeline
 
