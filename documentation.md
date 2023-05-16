@@ -205,6 +205,26 @@ I already have a user `terraform jenkins` that was created prerviously so i'm go
 
 <br>
 
+- attach the following policy to the user: `AmazonECSTaskExecutionRolePolicy`
+
+
+<br>
+
+<img width="1388" alt="create_cluster" src="https://github.com/earchibong/springboot_project/assets/92983658/f80ebaf0-246c-4c89-ad2f-9f493b6c5dfd">
+
+<br>
+
+### Configure ECS Service
+
+
+## Create ECS Cluster
+-Go to the Amazon ECS console.
+- Click on "Clusters" in the sidebar and then click `Create Cluster.`
+- Enter a name for your cluster, such as `springboot-project`
+- Click `Create` to create the cluster.
+
+<br>
+
 
 ## Create an ECR repository for Docker image.
 ```
