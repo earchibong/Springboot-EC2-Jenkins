@@ -336,6 +336,35 @@ In this config. i'm using the mongodb service provider `Mongo Atlas` so to get t
 
 <br>
 
+## Configure Keycloak Server
+
+- Install & Start Keycloak:
+```
+
+# Download the Keycloak distribution package from the Keycloak website. ( I'm using version : 21.1.1)
+sudo wget https://github.com/keycloak/keycloak/releases/download/21.1.1/keycloak-21.1.1.tar.gz
+
+# Extract the downloaded package:
+sudo tar xf keycloak-21.1.1.tar.gz
+
+# Rename the extracted folder to keycloak for simplicity:
+mv keycloak-21.1.1 keycloak
+
+# Start Keycloak:
+# Change to the Keycloak directory:
+cd keycloak/bin
+
+# Start the Keycloak server in devlopment mode:
+# The -Djboss.socket.binding.port-offset=100 option offsets the default ports by 100 ...
+# to avoid conflicts with other services running on the instance.
+# ./kc.sh start-dev : starts in dev mode
+# ./kc.sh start : starts in production mode
+
+./kc.sh start-dev -Djboss.socket.binding.port-offset=100
+
+
+```
+
 
 ## Create a Dockerfile For The Application
 In the application folder, create a folder named `app` and then create a docker file in the `app` directory. Add the following to the  docker file:
