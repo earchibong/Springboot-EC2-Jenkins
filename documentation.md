@@ -336,9 +336,11 @@ In this config. i'm using the mongodb service provider `Mongo Atlas` so to get t
 
 <br>
 
+
 ## Configure Keycloak Server
 
-- Install & Start Keycloak:
+-  spin up a new EC2 instance
+-  Install & Start Keycloak:
 ```
 
 # Download the Keycloak distribution package from the Keycloak website. ( I'm using version : 21.1.1)
@@ -350,20 +352,56 @@ sudo tar xf keycloak-21.1.1.tar.gz
 # Rename the extracted folder to keycloak for simplicity:
 mv keycloak-21.1.1 keycloak
 
+# Generate the SSL certificate (self-signed certificate)
+# This version is only for dev purposes
+
+cd keycloak
+sudo openssl req -newkey rsa:2048 -nodes \
+  -keyout keycloak-server.key.pem -x509 -days 3650 -out keycloak-server.crt.pem
+
+
+# It will prompt for details like:
+Country Name (2 letter code) []:
+State or Province Name (full name) []:
+Locality Name (eg, city) []:
+Organization Name (eg, company) []:
+Organizational Unit Name (eg, section) []:
+Common Name (eg, fully qualified host name) []:
+Email Address []
+
+
 # Start Keycloak:
 # Change to the Keycloak directory:
 cd keycloak/bin
 
+# set the environment variables
+# note: this is only for development purposes and cannot be used for production
+export KEYCLOAK_ADMIN=admin 
+export KEYCLOAK_ADMIN_PASSWORD=password
+export KC_HOSTNAME_STRICT=false
+export KC_HOSTNAME_STRICT_HTTPS=false 
+export KC_HTTP_ENABLED=true
+
 # Start the Keycloak server in devlopment mode:
-# The -Djboss.socket.binding.port-offset=100 option offsets the default ports by 100 ...
-# to avoid conflicts with other services running on the instance.
+# -Djboss.socket.binding.port-offset=100 ...offsets the default ports by 100 to avoid conflicts with other services running on the instance.
 # ./kc.sh start-dev : starts in dev mode
 # ./kc.sh start : starts in production mode
 
-sudo ./kc.sh start-dev -Djboss.socket.binding.port-offset=100
+sudo -E ./bin/kc.sh start-dev -Djboss.socket.binding.port-offset=100 
+
+# Access the Keycloak Admin Console:
+# Open a web browser and navigate to http://<public_ip_address>:8080/admin
+# set up the necessary realm and client configurations.
 
 
 ```
+
+
+<br>
+
+<img width="1388" alt="kc_admin" src="https://github.com/earchibong/springboot_project/assets/92983658/787b5dc1-aea8-4447-9726-c70d49dccb91">
+
+<br>
 
 
 ## Create a Dockerfile For The Application
