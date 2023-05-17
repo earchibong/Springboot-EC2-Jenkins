@@ -1,7 +1,7 @@
 ## Deploy Spring Boot MongoDB Application on AWS ECS using Jenkins CI/CD
 The idea for this project came from a freelance job request that reads as follows:
 
-Java Spring Boot App. Database will Be MongoDB. Security Provider is Keycloak. Create a configuration for this. Providing CI/CD to AWS as well as Dockerfile / Dockercompose.
+*Java Spring Boot App. Database will Be MongoDB. Security Provider is Keycloak. Create a configuration for this. Providing CI/CD to AWS as well as Dockerfile / Dockercompose.*
 
 **Access full documentation for the ECS project option <a href="https://github.com/earchibong/springboot_project/blob/main/documentation.md">here</a>**
 
