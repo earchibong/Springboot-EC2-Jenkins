@@ -171,7 +171,8 @@ Follow instruction on jenkins management interface
     - Add credentials.
     - kind: "username and password"
     - username: your github user name.
-    - password: enter < a href="https://docs.github.com/en/enterprise-server@3.4/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token">github personal access token</a>
+    - password: enter <a href="https://docs.github.com/en/enterprise-server@3.4/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token">github personal access token</a>
+    
 <br>
 
 <br>
