@@ -3,7 +3,7 @@ The idea for this project came from a freelance job request that reads as follow
 
 Java Spring Boot App. Database will Be MongoDB. Security Provider is Keycloak. Create a configuration for this. Providing CI/CD to AWS as well as Dockerfile / Dockercompose.
 
-**Access full documentation for this project <a href="https://github.com/earchibong/springboot_project/blob/main/documentation.md">here</a>**
+**Access full documentation for the ECS project option <a href="https://github.com/earchibong/springboot_project/blob/main/documentation.md">here</a>**
 
 <br>
 
@@ -13,14 +13,16 @@ There are several service options for deploying this setup to AWS and they inclu
 
 - **Amazon ECS:** This service is a fully-managed container orchestration service that supports Docker containers. You can use Amazon ECS to deploy and manage Docker containers that run your Spring Boot application. This option requires more setup and configuration than Elastic Beanstalk, but it provides greater flexibility and control over your infrastructure.
 
+- **Amazon EC2:** With this option, we can deploy docker contianers directly onto the EC2 instance. If the application is a small and doesn't have a lot of complex dependencies then this might be the preferred option.
+
 - **AWS Lambda:** This service allows you to run your code without provisioning or managing servers. You can use AWS Lambda to deploy the Spring Boot application as a serverless application. However, this option is mostly ideal for applications that have low traffic and short execution times. If the application has more complex dependencies, requires longer execution times, or has high traffic, AWS Lambda may not be the best option.
 
-In this case, I decided to go with `Amazon ECS` because of the flexibility and infrastructure control it offers but without the additional complexity of managing a Kubernetes cluster.
+In this case, I decided to show both the `Amazon ECS` - because of the flexibility and infrastructure control it offers but without the additional complexity of managing a Kubernetes cluster...and the `EC2` option with docker containers because of the simplicity it offers.
 
 <br>
 
 
-**Here's the proposed architecture:**
+**Here's the proposed architecture for ECS:**
 
 <br>
 
@@ -29,7 +31,7 @@ In this case, I decided to go with `Amazon ECS` because of the flexibility and i
 <br>
 
 
-## Here are my proposed steps for this configuration:
+## Here are my proposed steps for the ECS configuration:
 
 Here are the steps to set up a Jenkins CI/CD pipeline to AWS ECR and ECS for your Java Spring Boot app with MongoDB and Keycloak:
 
@@ -39,9 +41,13 @@ Here are the steps to set up a Jenkins CI/CD pipeline to AWS ECR and ECS for you
 
 3. Create an ECR repository for Docker image.
 
+4. Configure Keycloak and MongoDB
+
+5. Create ECS cluster
+
 4. Create a Dockerfile for the application.
 
-5. Create a Jenkins job for your CI/CD pipeline. Here's an overview of the steps you can include in the job:
+5. Create a Jenkins job for CI/CD pipeline. Here's an overview of the steps you can include in the job:
 
 - Check out the source code from your GitHub repository.
 - Build the Spring Boot app with Maven or Gradle.
