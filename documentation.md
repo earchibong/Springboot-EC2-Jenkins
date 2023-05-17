@@ -360,7 +360,7 @@ cd keycloak/bin
 # ./kc.sh start-dev : starts in dev mode
 # ./kc.sh start : starts in production mode
 
-./kc.sh start-dev -Djboss.socket.binding.port-offset=100
+sudo ./kc.sh start-dev -Djboss.socket.binding.port-offset=100
 
 
 ```
