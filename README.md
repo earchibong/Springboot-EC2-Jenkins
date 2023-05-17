@@ -3,7 +3,7 @@ The idea for this project came from a freelance job request that reads as follow
 
 Java Spring Boot App. Database will Be MongoDB. Security Provider is Keycloak. Create a configuration for this. Providing CI/CD to AWS as well as Dockerfile / Dockercompose.
 
-**Access full documentation for this project <a href="https://github.com/earchibong/springboot_project/documentation.md">here</a>**
+**Access full documentation for this project <a href="https://github.com/earchibong/springboot_project/blob/main/documentation.md">here</a>**
 
 <br>
 
