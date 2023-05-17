@@ -166,12 +166,12 @@ Follow instruction on jenkins management interface
 <br>
 
 - link github repo to jenkins
-    - Select "Credentials" in the right hand sidebar.
-    - Select "Global credentials (unrestricted)" Note: these credentials are only available to projects in your folder.
+    - Select `Credentials` in the right hand sidebar.
+    - Select `Global credentials (unrestricted)`
     - Add credentials.
-    - kind: "username and password"
-    - username: your github user name.
-    - password: enter <a href="https://docs.github.com/en/enterprise-server@3.4/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token">github personal access token</a>
+     - kind: `username and password`
+     - username: your github user name.
+     - password: enter <a href="https://docs.github.com/en/enterprise-server@3.4/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token">github personal access token</a>
     
 <br>
 
