@@ -215,14 +215,20 @@ I already have a user `terraform jenkins` that was created prerviously so i'm go
 
 <br>
 
-### Configure ECS Service
-
-
 ## Create ECS Cluster
--Go to the Amazon ECS console.
+- Go to the Amazon ECS console.
 - Click on "Clusters" in the sidebar and then click `Create Cluster.`
 - Enter a name for your cluster, such as `springboot-project`
 - Click `Create` to create the cluster.
+- skip `task definition`
+- service name: `springboot-ecs`
+- desired tasks: `1`
+
+<br>
+
+<img width="1354" alt="ecs_cluster" src="https://github.com/earchibong/springboot_project/assets/92983658/e7888696-da81-4a0e-a587-02aabeda2216">
+
+<br>
 
 <br>
 
@@ -362,8 +368,6 @@ This Dockerfile uses the official `OpenJDK 11 image` as the base, copies the Spr
 
 <br>
 
-## Create ECS Service And Cluster
-
 ## Create A Jenkins Job For The CI/CD Pipeline
 
 - in the root directory of your app file, create a file named `Jenkinsfile`
@@ -454,7 +458,48 @@ pipeline {
               ]
             ],
             taskRoleArn: "arn:aws:iam::123456789012:role/ecsTaskExecutionRole",
-            family: "
+            family: "my-task-family",
+            networkMode: "awsvpc",
+            requiresCompatibilities: ["FARGATE"],
+            cpu: "256",
+            memory: "512",
+            executionRoleArn: "arn:aws:iam::123456789012:role/ecsTaskExecutionRole",
+            networkConfiguration: [
+              awsvpcConfiguration: [
+                assignPublicIp: "ENABLED",
+                subnets: ["subnet-12345678"],
+                securityGroups: ["sg-12345678"]
+              ]
+            ]
+          ]
+
+          ecsParams.containerDefinitionsJson = ecsParams.containerDefinitions as String
+          ecsParams.networkConfigurationJson = ecsParams.networkConfiguration as String
+
+          def taskDefinition = null
+          withCredentials([[
+              $class: 'AmazonWebServicesCredentialsBinding',
+              accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+              credentialsId: 'aws-credentials',
+              secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
+            ]]) {
+            sh """
+              aws configure set aws_access_key_id ${env.AWS_ACCESS_KEY_ID}
+              aws configure set aws_secret_access_key ${env.AWS_SECRET_ACCESS_KEY}
+              aws configure set default.region ${env.AWS_REGION}
+
+              aws ecs register-task-definition --cli-input-json '${ecsParams as String}'
+              taskDefinition=\$(aws ecs list-task-definitions --family-prefix my-task-family | jq -r '.taskDefinitionArns[0]')
+
+              aws ecs update-service --cluster ${ECS_CLUSTER} --service ${ECS_SERVICE} --task-definition \${taskDefinition}
+            """
+          }
+        }
+      }
+    }
+  }
+}
+
 
 
 ```
