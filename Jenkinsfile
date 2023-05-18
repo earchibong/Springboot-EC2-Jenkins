@@ -43,12 +43,9 @@ pipeline {
         echo 'Build Dockerfile....'
         script {
           sh("eval \$(aws ecr get-login --no-include-email --region eu-west-2 | sed 's|https://||')")
-          # sh "docker build --network=host -t $IMAGE_NAME ."
           sh "docker build ("${IMAGE_NAME}:${IMAGE_TAG}", "--file ${DOCKERFILE} ${env.WORKSPACE}")"
           docker.withRegistry("https://${ECR_REGISTRY}", 'ecr') {
             docker.image("${IMAGE_NAME}:${IMAGE_TAG}").push()
-            # def appImage = docker.build("${ECR_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}", "--file ${DOCKERFILE} ${env.WORKSPACE}")
-            # appImage.push()
           }
         }
       }
