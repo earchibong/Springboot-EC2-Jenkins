@@ -90,11 +90,15 @@ sudo systemctl status docker.service #<-- get the service status
 <br>
 
 
-- install git
+- install git and maven
 
 ```
 
 sudo yum install git
+sudo wget https://repos.fedorapeople.org/repos/dchen/apache-maven/epel-apache-maven.repo -O /etc/yum.repos.d/epel-apache-maven.repo
+sudo sed -i s/\$releasever/6/g /etc/yum.repos.d/epel-apache-maven.repo
+sudo yum install -y apache-maven
+
 
 ```
 
@@ -158,6 +162,7 @@ Follow instruction on jenkins management interface
 - Amazon ECR, 
 - Docker pipeline 
 - Blue ocean
+- pipeline maven integration
 
 ```
 
@@ -333,64 +338,6 @@ In this config. i'm using the mongodb service provider `Mongo Atlas` so to get t
 <img width="823" alt="mongo_uri" src="https://github.com/earchibong/springboot_project/assets/92983658/eb233ffb-5eda-4852-95b4-4138d4f671d8">
 
 <br>
-
-<br>
-
-
-## Configure Keycloak Server
-
--  spin up a new EC2 instance
--  install java
-
-```
-
-sudo dnf install java-11-amazon-corretto -y
-
-```
-
-<br>
-
--  Install & Start Keycloak:
-```
-
-# Download the Keycloak distribution package from the Keycloak website. ( I'm using version : 21.1.1)
-sudo wget https://github.com/keycloak/keycloak/releases/download/21.1.1/keycloak-21.1.1.tar.gz
-
-# Extract the downloaded package:
-sudo tar xf keycloak-21.1.1.tar.gz
-
-# Rename the extracted folder to keycloak for simplicity:
-mv keycloak-21.1.1 keycloak
-
-
-# Start Keycloak:
-# Change to the Keycloak directory:
-cd keycloak/bin
-
-# set the environment variables
-# note: this is only for development purposes and cannot be used for production
-export KEYCLOAK_ADMIN=admin 
-export KEYCLOAK_ADMIN_PASSWORD=password
-
-
-# Start the Keycloak server in devlopment mode:
-# -Djboss.socket.binding.port-offset=100 ...offsets the default ports by 100 to avoid conflicts with other services running on the instance.
-# ./kc.sh start-dev : starts in dev mode
-# ./kc.sh start : starts in production mode
-
-sudo -E ./kc.sh start-dev -Djboss.socket.binding.port-offset=100 
-
-# Access the Keycloak Admin Console:
-# Open a web browser and navigate to http://<public_ip_address>:8080/admin
-# set up the necessary realm and client configurations.
-
-
-```
-
-
-<br>
-
-<img width="1388" alt="kc_admin" src="https://github.com/earchibong/springboot_project/assets/92983658/787b5dc1-aea8-4447-9726-c70d49dccb91">
 
 <br>
 
@@ -588,72 +535,84 @@ pipeline {
       }
     }
     
-    stage('Create Task Definition') {
+    stage('Deploy App') {
       steps {
         script {
-          def taskDefinition = [:]
-          
-          taskDefinition.family = TASK_FAMILY
-          taskDefinition.taskRoleArn = "arn:aws:iam::350100602815:role/ecsTaskExecutionRole"
-          taskDefinition.executionRoleArn = "arn:aws:iam::350100602815:role/ecsTaskExecutionRole"
-          taskDefinition.networkMode = "awsvpc"
-          
-          def containerDefinitions = [
-            [
-              name: "myapp",
-              image: "${ECR_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}",
-              essential: true,
-              portMappings: [
-                [
-                  containerPort: 8080,
-                  hostPort: 0,
-                  protocol: "tcp"
+          def ecsParams = [
+            containerDefinitions: [
+              [
+                name: "myapp",
+                image: "${ECR_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}",
+                essential: true,
+                portMappings: [
+                  [
+                    containerPort: 8080,
+                    hostPort: 0,
+                    protocol: "tcp"
+                  ]
+                ],
+                environment: [
+                  [
+                    name: "SPRING_DATA_MONGODB_URI",
+                    value: "mongodb://mongo/mydb"
+                  ],
+                  [
+                    name: "KEYCLOAK_AUTH_SERVER_URL",
+                    value: "http://keycloak:8080/auth"
+                  ],
+                  [
+                    name: "KEYCLOAK_REALM",
+                    value: "myrealm"
+                  ],
+                  [
+                    name: "KEYCLOAK_RESOURCE",
+                    value: "myapp"
+                  ]
                 ]
-              ],
-              environment: [
-                [
-                  name: "SPRING_DATA_MONGODB_URI",
-                  value: "mongodb+srv://darey:darey@cluster0.ixif8fy.mongodb.net/?retryWrites=true&w=majority"
-                ]
+              ]
+            ],
+            taskRoleArn: "arn:aws:iam::123456789012:role/ecsTaskExecutionRole",
+            family: "my-task-family",
+            networkMode: "awsvpc",
+            requiresCompatibilities: ["FARGATE"],
+            cpu: "256",
+            memory: "512",
+            executionRoleArn: "arn:aws:iam::123456789012:role/ecsTaskExecutionRole",
+            networkConfiguration: [
+              awsvpcConfiguration: [
+                assignPublicIp: "ENABLED",
+                subnets: ["subnet-12345678"],
+                securityGroups: ["sg-12345678"]
               ]
             ]
           ]
-          
-          taskDefinition.containerDefinitions = containerDefinitions
-          
-          writeFile file: 'taskdefinition.json', text: groovy.json.JsonOutput.toJson(taskDefinition)
-          
-          def awsCredentials = [
-            [
+
+          ecsParams.containerDefinitionsJson = ecsParams.containerDefinitions as String
+          ecsParams.networkConfigurationJson = ecsParams.networkConfiguration as String
+
+          def taskDefinition = null
+          withCredentials([[
               $class: 'AmazonWebServicesCredentialsBinding',
               accessKeyVariable: 'AWS_ACCESS_KEY_ID',
               credentialsId: 'aws-credentials',
               secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
-            ]
-          ]
-          
-          withCredentials(awsCredentials) {
+            ]]) {
             sh """
               aws configure set aws_access_key_id ${env.AWS_ACCESS_KEY_ID}
               aws configure set aws_secret_access_key ${env.AWS_SECRET_ACCESS_KEY}
               aws configure set default.region ${env.AWS_REGION}
-              
-              aws ecs register-task-definition --cli-input-json file://taskdefinition.json
+
+              aws ecs register-task-definition --cli-input-json '${ecsParams as String}'
+              taskDefinition=\$(aws ecs list-task-definitions --family-prefix my-task-family | jq -r '.taskDefinitionArns[0]')
+
+              aws ecs update-service --cluster ${ECS_CLUSTER} --service ${ECS_SERVICE} --task-definition \${taskDefinition}
             """
           }
         }
       }
     }
-    
-    stage('Deploy') {
-      steps {
-        script {
-          withCredentials([
-            [
-              $class: 'AmazonWebServicesCredentialsBinding',
-              accessKeyVariable: 'AWS_ACCESS_KEY_ID',
-             
-
+  }
+}
 
 
 
