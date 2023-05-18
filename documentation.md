@@ -14,12 +14,11 @@ As per the project scope, the app had to be deployed on AWS. I chose AWS Elastic
 user For Jenkins To Access AWS Services</a>
 - <a href="https://github.com/earchibong/springboot_project/blob/main/documentation.md#create-an-ecr-repository-for-docker-image">Create an ECR repository for Docker image</a>
 - <a href="https://github.com/earchibong/springboot_project/blob/main/documentation.md#clone-the-github-repository-containing-the-java-spring-boot-application">Embed MongoDB in Java Application</a>
-- <a href="https://github.com/earchibong/springboot_project/blob/main/documentation.md#create-a-jenkins-job-for-the-cicd-pipeline">Create Jenkins Job For CI/CD Pipeline</a>
 - <a href="https://github.com/earchibong/springboot_project/blob/main/documentation.md#create-ecs-cluster">Create ECS cluster</a>
 - <a href="https://github.com/earchibong/springboot_project/blob/main/documentation.md#create-an-ecr-repository-for-docker-image">Create ECR Repository</a>
 - <a href="https://github.com/earchibong/springboot_project/blob/main/documentation.md#configure-springboot-app-pom-file-to-embed-mongodb">Configure Springboot App for MongoDB</a>
-- <a href="https://github.com/earchibong/springboot_project/blob/main/documentation.md#configure-keycloak-server">Configure Keycloak  Server </a>
 - <a href="https://github.com/earchibong/springboot_project/blob/main/documentation.md#create-a-dockerfile-for-the-application">Create Dockerfile For the Application</a>
+- <a href="https://github.com/earchibong/springboot_project/blob/main/documentation.md#create-a-jenkins-job-for-the-cicd-pipeline">Create Jenkins Job For CI/CD Pipeline</a>
 
 <br>
 
@@ -491,6 +490,7 @@ pipeline {
     ECS_SERVICE = "springboot_service"
     DOCKERFILE = "Dockerfile"
     TASK_FAMILY = "springboot_task_family"
+    MAVEN_OPTS = "-Dmaven.repo.local=$WORKSPACE/.m2"
   }
   
   agent any
@@ -554,19 +554,7 @@ pipeline {
                 environment: [
                   [
                     name: "SPRING_DATA_MONGODB_URI",
-                    value: "mongodb://mongo/mydb"
-                  ],
-                  [
-                    name: "KEYCLOAK_AUTH_SERVER_URL",
-                    value: "http://keycloak:8080/auth"
-                  ],
-                  [
-                    name: "KEYCLOAK_REALM",
-                    value: "myrealm"
-                  ],
-                  [
-                    name: "KEYCLOAK_RESOURCE",
-                    value: "myapp"
+                    value: "<your mongodb url>"
                   ]
                 ]
               ]
@@ -634,5 +622,8 @@ sudo chmod 666 /var/run/docker.sock
 
 ```
 
+<br>
 
+- push changes to git repository
+- confirm pipeline build in Jenkins
 
