@@ -167,7 +167,9 @@ Follow instruction on jenkins management interface
 
 <br>
 
+
 <br>
+
 
 - link github repo to jenkins
     - Select `Credentials` in the right hand sidebar.
@@ -194,28 +196,24 @@ Follow instruction on jenkins management interface
 
 I already have a user `terraform jenkins` that was created prerviously so i'm going to add permissions for ECR and ECS. However, here are the steps for creating a user and attaching permissions:
 
-- in `iam` console, create a user group `admin`
+- in `iam` console, create a user group `springboot`
+- add your user (my user is `terraform-jenkins`) or create one later if it doesn't already exist
 - click `add permissions`
-- select the permission to add to the user group: 
+ - select the permission +Policies to add to the user group: 
     - ECS: `AmazonECS_FullAccess`
     - ECR: `EC2InstanceProfileForImageBuilderECRContainerBuilds`
-    - EC2: `AmazonEC2ContainerRegistryFullAccess`
-- under the `admin` usergroup, create a new user (in my case, `terraform-jenkins`) to make use of the permissions attached to the group
+    - EC2: `AmazonEC2FullAccess`
+    - ECS: `AmazonECSTaskExecutionRolePolicy`
+- if you don't have a user already, create a new user and then add them to your new group
 
 <br>
 
-<img width="1385" alt="iam_user_permissions" src="https://github.com/earchibong/springboot_project/assets/92983658/783a1b9e-4494-4430-bd2a-5ef7611938c6">
+<img width="1387" alt="iam" src="https://github.com/earchibong/springboot_project/assets/92983658/925f449e-a93c-483b-945a-bab0cd8d103e">
 
 <br>
 
 <br>
 
-- attach the following policy to the user: `AmazonECSTaskExecutionRolePolicy`
-
-
-<br>
-
-<img width="1388" alt="create_cluster" src="https://github.com/earchibong/springboot_project/assets/92983658/f80ebaf0-246c-4c89-ad2f-9f493b6c5dfd">
 
 <br>
 
@@ -224,9 +222,7 @@ I already have a user `terraform jenkins` that was created prerviously so i'm go
 - Click on "Clusters" in the sidebar and then click `Create Cluster.`
 - Enter a name for your cluster, such as `springboot-project`
 - Click `Create` to create the cluster.
-- skip `task definition`
-- service name: `springboot-ecs`
-- desired tasks: `1`
+
 
 <br>
 
@@ -277,12 +273,12 @@ To load an embedded MongoDB with Spring Boot, all that is needed is to add its m
 
 <br>
 
-- Open the `application.properties` file located in src/main/resources. Update the MongoDB URI to point to your MongoDB instance with value: `mongodb://mongo/mydb`
+- Open the `application.properties` file located in src/main/resources. Update the MongoDB URI to point to your MongoDB instance with value: `mongodb+srv://<username>:<password>@cluster0.ixif8fy.mongodb.net/?retryWrites=true&w=majority`
 
 <br>
 
 
-<img width="1034" alt="application_properties_mongo" src="https://github.com/earchibong/springboot_project/assets/92983658/f2c2843c-b487-417a-a216-56d9eaa69621">
+<img width="1023" alt="mongo_rui" src="https://github.com/earchibong/springboot_project/assets/92983658/69429b96-9c7c-4a0a-87c1-8baba6576266">
 
 
 <br>
@@ -344,6 +340,16 @@ In this config. i'm using the mongodb service provider `Mongo Atlas` so to get t
 ## Configure Keycloak Server
 
 -  spin up a new EC2 instance
+-  install java
+
+```
+
+sudo dnf install java-11-amazon-corretto -y
+
+```
+
+<br>
+
 -  Install & Start Keycloak:
 ```
 
@@ -356,23 +362,6 @@ sudo tar xf keycloak-21.1.1.tar.gz
 # Rename the extracted folder to keycloak for simplicity:
 mv keycloak-21.1.1 keycloak
 
-# Generate the SSL certificate (self-signed certificate)
-# This version is only for dev purposes
-
-cd keycloak
-sudo openssl req -newkey rsa:2048 -nodes \
-  -keyout keycloak-server.key.pem -x509 -days 3650 -out keycloak-server.crt.pem
-
-
-# It will prompt for details like:
-Country Name (2 letter code) []:
-State or Province Name (full name) []:
-Locality Name (eg, city) []:
-Organization Name (eg, company) []:
-Organizational Unit Name (eg, section) []:
-Common Name (eg, fully qualified host name) []:
-Email Address []
-
 
 # Start Keycloak:
 # Change to the Keycloak directory:
@@ -382,16 +371,14 @@ cd keycloak/bin
 # note: this is only for development purposes and cannot be used for production
 export KEYCLOAK_ADMIN=admin 
 export KEYCLOAK_ADMIN_PASSWORD=password
-export KC_HOSTNAME_STRICT=false
-export KC_HOSTNAME_STRICT_HTTPS=false 
-export KC_HTTP_ENABLED=true
+
 
 # Start the Keycloak server in devlopment mode:
 # -Djboss.socket.binding.port-offset=100 ...offsets the default ports by 100 to avoid conflicts with other services running on the instance.
 # ./kc.sh start-dev : starts in dev mode
 # ./kc.sh start : starts in production mode
 
-sudo -E ./bin/kc.sh start-dev -Djboss.socket.binding.port-offset=100 
+sudo -E ./kc.sh start-dev -Djboss.socket.binding.port-offset=100 
 
 # Access the Keycloak Admin Console:
 # Open a web browser and navigate to http://<public_ip_address>:8080/admin
