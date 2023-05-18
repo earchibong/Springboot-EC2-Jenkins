@@ -201,7 +201,7 @@ I already have a user `terraform jenkins` that was created prerviously so i'm go
 - click `add permissions`
  - select the permission +Policies to add to the user group: 
     - ECS: `AmazonECS_FullAccess`
-    - ECR: `EC2InstanceProfileForImageBuilderECRContainerBuilds`
+    - ECR: `AmazonEC2ContainerRegistryFullAccess`
     - EC2: `AmazonEC2FullAccess`
     - ECS: `AmazonECSTaskExecutionRolePolicy`
 - if you don't have a user already, create a new user and then add them to your new group
@@ -429,155 +429,6 @@ This Dockerfile uses the official `OpenJDK 11 image` as the base, copies the Spr
 
 ## Create A Jenkins Job For The CI/CD Pipeline
 
-- in the root directory of your app file, create a file named `Jenkinsfile`
-- create the Jenkinsfile as follows:
-
-<br>
-
-Here's an overview of the steps that will be included in the job:
-    - Check out the source code from the GitHub repository.
-    - Build the Spring Boot app with Maven or Gradle.
-    - Build the Docker image and tag it with the ECR repository URL.
-    - Push the Docker image to the ECR repository.
-    - Deploy the Docker image to ECS using a task definition and a service.
-    
-
-<br>
-
-```
-
-pipeline {
-  environment {
-    ECR_REGISTRY = "123456789012.dkr.ecr.us-west-2.amazonaws.com"
-    IMAGE_NAME = "myapp"
-    IMAGE_TAG = "latest"
-    AWS_REGION = "us-west-2"
-    ECS_CLUSTER = "my-cluster"
-    ECS_SERVICE = "my-service"
-    DOCKERFILE = "Dockerfile"
-    MAVEN_OPTS = "-Dmaven.repo.local=$WORKSPACE/.m2"
-  }
-  agent any
-  stages {
-    stage('Checkout') {
-      steps {
-        checkout scm
-      }
-    }
-    stage('Build') {
-      steps {
-        sh "mvn -f ${env.WORKSPACE}/pom.xml clean package -DskipTests"
-        archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
-      }
-    }
-    stage('Build Docker image') {
-      steps {
-        script {
-          docker.withRegistry("https://${ECR_REGISTRY}", 'ecr') {
-            def appImage = docker.build("${ECR_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}", "--file ${DOCKERFILE} ${env.WORKSPACE}")
-            appImage.push()
-          }
-        }
-      }
-    }
-    stage('Deploy') {
-      steps {
-        script {
-          def ecsParams = [
-            containerDefinitions: [
-              [
-                name: "myapp",
-                image: "${ECR_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}",
-                essential: true,
-                portMappings: [
-                  [
-                    containerPort: 8080,
-                    hostPort: 0,
-                    protocol: "tcp"
-                  ]
-                ],
-                environment: [
-                  [
-                    name: "SPRING_DATA_MONGODB_URI",
-                    value: "mongodb://mongo/mydb"
-                  ],
-                  [
-                    name: "KEYCLOAK_AUTH_SERVER_URL",
-                    value: "http://keycloak:8080/auth"
-                  ],
-                  [
-                    name: "KEYCLOAK_REALM",
-                    value: "myrealm"
-                  ],
-                  [
-                    name: "KEYCLOAK_RESOURCE",
-                    value: "myapp"
-                  ]
-                ]
-              ]
-            ],
-            taskRoleArn: "arn:aws:iam::123456789012:role/ecsTaskExecutionRole",
-            family: "my-task-family",
-            networkMode: "awsvpc",
-            requiresCompatibilities: ["FARGATE"],
-            cpu: "256",
-            memory: "512",
-            executionRoleArn: "arn:aws:iam::123456789012:role/ecsTaskExecutionRole",
-            networkConfiguration: [
-              awsvpcConfiguration: [
-                assignPublicIp: "ENABLED",
-                subnets: ["subnet-12345678"],
-                securityGroups: ["sg-12345678"]
-              ]
-            ]
-          ]
-
-          ecsParams.containerDefinitionsJson = ecsParams.containerDefinitions as String
-          ecsParams.networkConfigurationJson = ecsParams.networkConfiguration as String
-
-          def taskDefinition = null
-          withCredentials([[
-              $class: 'AmazonWebServicesCredentialsBinding',
-              accessKeyVariable: 'AWS_ACCESS_KEY_ID',
-              credentialsId: 'aws-credentials',
-              secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
-            ]]) {
-            sh """
-              aws configure set aws_access_key_id ${env.AWS_ACCESS_KEY_ID}
-              aws configure set aws_secret_access_key ${env.AWS_SECRET_ACCESS_KEY}
-              aws configure set default.region ${env.AWS_REGION}
-
-              aws ecs register-task-definition --cli-input-json '${ecsParams as String}'
-              taskDefinition=\$(aws ecs list-task-definitions --family-prefix my-task-family | jq -r '.taskDefinitionArns[0]')
-
-              aws ecs update-service --cluster ${ECS_CLUSTER} --service ${ECS_SERVICE} --task-definition \${taskDefinition}
-            """
-          }
-        }
-      }
-    }
-  }
-}
-
-
-
-```
-
-<br>
-
-<br>
-
-- grant permissions to `jenkins` to gain access to docker
-After you've connected to `Jenkins` instance on your terminal, add the following in the command line:
-
-```
-
-sudo groupadd docker
-sudo usermod -aG docker $USER
-sudo chmod 777 /var/run/docker.sock
-
-```
-
 - Configure Jenkins pipeline: Go to the Jenkins Dashboard and create new job
     - Enter the name of the job and select the type of job you wish to run on Jenkins.
     - Select the `pipeline` option to to automate the tasks in your pipeline.
@@ -624,6 +475,204 @@ sudo chmod 777 /var/run/docker.sock
     - branch : reposority branch your project is stored on..in my case `*/main`
 
 - Script Path: `Jenkinsfile`
+- pipeline syntax:
+    - sample step : checkout from version control,
+    - SCM : git,
+    - enter repository and git credentials,
+    - enter branches to build - main ...then generate the pipeline script.
+    - use pipeline script to update jenkins file stage "checkout"
+
+
+<br>
+
+<br>
+
+- configure Jenkins with github server
+
+```
+# path:
+Jenkins Dashboard > Manage Jenkins > Configure System
+scroll to Github section
+Add github server:
+ - name:github
+ - credentials:
+   - type: secret text
+   - secret: github personal access token
+   - tick manage hooks
+
+test connection to ensure it all works on jenkins and verify webhook on github
+
+
+```
+
+<br>
+
+<br>
+
+<img width="1387" alt="github_server" src="https://github.com/earchibong/springboot_project/assets/92983658/a59de66c-ea0b-4364-920c-df95112a4663">
+
+
+<br>
+
+<br>
+
+- in the root directory of your app file, create a file named `Jenkinsfile`
+- create the Jenkinsfile as follows:
+
+<br>
+
+Here's an overview of the steps that will be included in the job:
+    - Check out the source code from the GitHub repository.
+    - Build the Spring Boot app with Maven or Gradle.
+    - Build the Docker image and tag it with the ECR repository URL.
+    - Push the Docker image to the ECR repository.
+    - Deploy the Docker image to ECS using a task definition and a service.
+    
+
+<br>
+
+```
+
+pipeline {
+  environment {
+    PROJECT     = 'springboot-ecs'
+    ECR_REGISTRY = "<your aws account>.dkr.ecr.eu-west-2.amazonaws.com/ecs-local"
+    IMAGE_NAME = "mongodb-springboot"
+    IMAGE_TAG = "latest"
+    AWS_REGION = "eu-west-2"
+    ECS_CLUSTER = "springboot_project"
+    ECS_SERVICE = "springboot_service"
+    DOCKERFILE = "Dockerfile"
+    TASK_FAMILY = "springboot_task_family"
+  }
+  
+  agent any
+  
+  stages {
+    
+    stage("Initial cleanup") {
+        steps {
+        dir("${WORKSPACE}") {
+            deleteDir()
+        }
+        }
+    }
+    
+    
+    stage('Checkout') {
+      steps {
+      checkout scmGit(
+        branches: [[name: '*/main'],
+        extensions: [], 
+        userRemoteConfigs: [[credentialsId: 'e1868d62-3cd4-44da-aba1-a24e2183d6e3', url: 'https://github.com/earchibong/springboot_project.git']]
+        )
+        
+      }
+    }
+    
+    stage('Build Jar image') {
+      steps {
+        sh "mvn -f ${env.WORKSPACE}/pom.xml clean package -DskipTests"
+        archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+      }
+    }
+    
+    stage('Build Docker image') {
+      steps {
+        script {
+          docker.withRegistry("https://${ECR_REGISTRY}", 'ecr') {
+            def appImage = docker.build("${ECR_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}", "--file ${DOCKERFILE} ${env.WORKSPACE}")
+            appImage.push()
+          }
+        }
+      }
+    }
+    
+    stage('Create Task Definition') {
+      steps {
+        script {
+          def taskDefinition = [:]
+          
+          taskDefinition.family = TASK_FAMILY
+          taskDefinition.taskRoleArn = "arn:aws:iam::350100602815:role/ecsTaskExecutionRole"
+          taskDefinition.executionRoleArn = "arn:aws:iam::350100602815:role/ecsTaskExecutionRole"
+          taskDefinition.networkMode = "awsvpc"
+          
+          def containerDefinitions = [
+            [
+              name: "myapp",
+              image: "${ECR_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}",
+              essential: true,
+              portMappings: [
+                [
+                  containerPort: 8080,
+                  hostPort: 0,
+                  protocol: "tcp"
+                ]
+              ],
+              environment: [
+                [
+                  name: "SPRING_DATA_MONGODB_URI",
+                  value: "mongodb+srv://darey:darey@cluster0.ixif8fy.mongodb.net/?retryWrites=true&w=majority"
+                ]
+              ]
+            ]
+          ]
+          
+          taskDefinition.containerDefinitions = containerDefinitions
+          
+          writeFile file: 'taskdefinition.json', text: groovy.json.JsonOutput.toJson(taskDefinition)
+          
+          def awsCredentials = [
+            [
+              $class: 'AmazonWebServicesCredentialsBinding',
+              accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+              credentialsId: 'aws-credentials',
+              secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
+            ]
+          ]
+          
+          withCredentials(awsCredentials) {
+            sh """
+              aws configure set aws_access_key_id ${env.AWS_ACCESS_KEY_ID}
+              aws configure set aws_secret_access_key ${env.AWS_SECRET_ACCESS_KEY}
+              aws configure set default.region ${env.AWS_REGION}
+              
+              aws ecs register-task-definition --cli-input-json file://taskdefinition.json
+            """
+          }
+        }
+      }
+    }
+    
+    stage('Deploy') {
+      steps {
+        script {
+          withCredentials([
+            [
+              $class: 'AmazonWebServicesCredentialsBinding',
+              accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+             
+
+
+
+
+```
+
+<br>
+
+<br>
+
+- grant permissions to `jenkins` to gain access to docker
+After you've connected to `Jenkins` instance on your terminal, add the following in the command line:
+
+```
+
+sudo groupadd docker
+sudo usermod -aG docker $USER
+sudo chmod 777 /var/run/docker.sock
+
+```
 
 
 
