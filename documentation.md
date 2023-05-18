@@ -629,7 +629,8 @@ After you've connected to `Jenkins` instance on your terminal, add the following
 
 sudo groupadd docker
 sudo usermod -aG docker $USER
-sudo chmod 777 /var/run/docker.sock
+#sudo chmod 777 /var/run/docker.sock
+sudo chmod 666 /var/run/docker.sock
 
 ```
 
