@@ -16,6 +16,8 @@ user For Jenkins To Access AWS Services</a>
 - <a href="https://github.com/earchibong/springboot_project/blob/main/documentation.md#clone-the-github-repository-containing-the-java-spring-boot-application">Embed MongoDB in Java Application</a>
 - <a href="https://github.com/earchibong/springboot_project/blob/main/documentation.md#create-a-jenkins-job-for-the-cicd-pipeline">Create Jenkins Job For CI/CD Pipeline</a>
 - <a href="https://github.com/earchibong/springboot_project/blob/main/documentation.md#create-ecs-cluster">Create ECS cluster</a>
+- <a href="https://github.com/earchibong/springboot_project/blob/main/documentation.md#create-an-ecr-repository-for-docker-image">Create ECR Repository</a>
+- 
 
 <br>
 
