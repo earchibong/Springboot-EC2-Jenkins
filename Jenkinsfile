@@ -26,11 +26,7 @@ pipeline {
     
     stage('Checkout') {
       steps {
-      checkout scmGit(
-        branches: [[name: '*/main'],
-        extensions: [], 
-        userRemoteConfigs: [[credentialsId: 'e1868d62-3cd4-44da-aba1-a24e2183d6e3', url: 'https://github.com/earchibong/springboot_project.git']])
-        
+      checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'e1868d62-3cd4-44da-aba1-a24e2183d6e3', url: 'https://github.com/earchibong/springboot_project.git']])
       }
     }
     
