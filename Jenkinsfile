@@ -9,6 +9,7 @@ pipeline {
     ECS_SERVICE = "springboot_service"
     DOCKERFILE = "Dockerfile"
     TASK_FAMILY = "springboot_task_family"
+    MAVEN_OPTS = "-Dmaven.repo.local=$WORKSPACE/.m2"
   }
   
   agent any
