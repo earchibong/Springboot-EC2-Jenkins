@@ -31,7 +31,7 @@ pipeline {
       }
     }
     
-    stage('Build Jar image') {
+    stage('Build Jar file') {
       steps {
         sh "mvn -f ${env.WORKSPACE}/pom.xml clean package -DskipTests"
         archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
@@ -40,7 +40,10 @@ pipeline {
     
     stage('Build Docker image') {
       steps {
+        echo 'Build Dockerfile....'
         script {
+          sh("eval \$(aws ecr get-login --no-include-email --region eu-west-2 | sed 's|https://||')")
+          #sh "docker build ("${ECR_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}", "--file ${DOCKERFILE} ${env.WORKSPACE}")"
           docker.withRegistry("https://${ECR_REGISTRY}", 'ecr') {
             def appImage = docker.build("${ECR_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}", "--file ${DOCKERFILE} ${env.WORKSPACE}")
             appImage.push()
