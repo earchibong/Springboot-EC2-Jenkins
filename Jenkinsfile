@@ -48,68 +48,69 @@ pipeline {
       }
     }
     
-    stage('Create Task Definition') {
+    stage('Deploy') {
       steps {
         script {
-          def taskDefinition = [:]
-          
-          taskDefinition.family = TASK_FAMILY
-          taskDefinition.taskRoleArn = "arn:aws:iam::350100602815:role/ecsTaskExecutionRole"
-          taskDefinition.executionRoleArn = "arn:aws:iam::350100602815:role/ecsTaskExecutionRole"
-          taskDefinition.networkMode = "awsvpc"
-          
-          def containerDefinitions = [
-            [
-              name: "myapp",
-              image: "${ECR_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}",
-              essential: true,
-              portMappings: [
-                [
-                  containerPort: 8080,
-                  hostPort: 0,
-                  protocol: "tcp"
+          def ecsParams = [
+            containerDefinitions: [
+              [
+                name: "mongodb-springboot",
+                image: "${ECR_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}",
+                essential: true,
+                portMappings: [
+                  [
+                    containerPort: 8080,
+                    hostPort: 0,
+                    protocol: "tcp"
+                  ]
+                ],
+                environment: [
+                  [
+                    name: "SPRING_DATA_MONGODB_URI",
+                    value: "mongodb+srv://darey:darey@cluster0.ixif8fy.mongodb.net/?retryWrites=true&w=majority"
+                  ]
                 ]
-              ],
-              environment: [
-                [
-                  name: "SPRING_DATA_MONGODB_URI",
-                  value: "mongodb+srv://darey:darey@cluster0.ixif8fy.mongodb.net/?retryWrites=true&w=majority"
-                ]
+              ]
+            ],
+            taskRoleArn: "arn:aws:iam::350100602815:role/ecsTaskExecutionRole",
+            family: "springboot_task_family",
+            networkMode: "awsvpc",
+            requiresCompatibilities: ["FARGATE"],
+            cpu: "256",
+            memory: "512",
+            executionRoleArn: "arn:aws:iam::350100602815:role/ecsTaskExecutionRole",
+            networkConfiguration: [
+              awsvpcConfiguration: [
+                assignPublicIp: "ENABLED",
+                subnets: ["subnet-0d0d30fa5368a334b"],
+                securityGroups: ["sg-0d650c3fde5367c85"]
               ]
             ]
           ]
-          
-          taskDefinition.containerDefinitions = containerDefinitions
-          
-          writeFile file: 'taskdefinition.json', text: groovy.json.JsonOutput.toJson(taskDefinition)
-          
-          def awsCredentials = [
-            [
+
+          ecsParams.containerDefinitionsJson = ecsParams.containerDefinitions as String
+          ecsParams.networkConfigurationJson = ecsParams.networkConfiguration as String
+
+          def taskDefinition = null
+          withCredentials([[
               $class: 'AmazonWebServicesCredentialsBinding',
               accessKeyVariable: 'AWS_ACCESS_KEY_ID',
               credentialsId: 'aws-credentials',
               secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
-            ]
-          ]
-          
-          withCredentials(awsCredentials) {
+            ]]) {
             sh """
               aws configure set aws_access_key_id ${env.AWS_ACCESS_KEY_ID}
               aws configure set aws_secret_access_key ${env.AWS_SECRET_ACCESS_KEY}
               aws configure set default.region ${env.AWS_REGION}
-              
-              aws ecs register-task-definition --cli-input-json file://taskdefinition.json
+
+              aws ecs register-task-definition --cli-input-json '${ecsParams as String}'
+              taskDefinition=\$(aws ecs list-task-definitions --family-prefix springboot_task_family | jq -r '.taskDefinitionArns[0]')
+
+              aws ecs update-service --cluster ${ECS_CLUSTER} --service ${ECS_SERVICE} --task-definition \${taskDefinition}
             """
           }
         }
       }
     }
-    
-    stage('Deploy') {
-      steps {
-        script {
-          withCredentials([
-            [
-              $class: 'AmazonWebServicesCredentialsBinding',
-              accessKeyVariable: 'AWS_ACCESS_KEY_ID',
-             
+  }
+}
