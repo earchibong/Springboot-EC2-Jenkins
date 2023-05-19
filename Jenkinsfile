@@ -52,7 +52,7 @@ pipeline {
 
     stage('deploy') {
       steps {
-        echo 'deploy coming soon'
+        echo 'deploy coming soon...'
       }
     }
   }
