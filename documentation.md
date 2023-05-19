@@ -198,21 +198,6 @@ Follow instruction on jenkins management interface
 
 <br>
 
-- Link AWS to Jenkins
- - Jenkins Dashboard > Manage Jenkins > Configure System
-  - scroll to Docker section
-  - Add ECR credentials:
-   - Docker label: Docker
-   - Docker registry URL: <your ECR url>
-   - credentials: add AWS ECR credentials
-   
-
-test connection to ensure it all works on jenkins and verify webhook on github
-
-
-<br>
-
-<br>
 
 
 ## Create an IAM Role for Jenkins to access AWS services
@@ -250,6 +235,24 @@ I already have a role `ECR-Jenkins` that was created prerviously so i'm going to
 
 <br>
 
+
+<br>
+
+
+- Link AWS to Jenkins
+ - Jenkins Dashboard > Manage Jenkins > Configure System
+  - scroll to Docker section
+  - Add ECR credentials:
+   - Docker label: Docker
+   - Docker registry URL: <your ECR url>
+   - credentials: add your ECR region and AWS IAM role
+   
+
+<br>
+    
+<img width="1387" alt="docker" src="https://github.com/earchibong/springboot_project/assets/92983658/38f78a6e-cf16-4625-80a9-b1e6752ef3b5">
+
+<br>
 
 <br>
 
