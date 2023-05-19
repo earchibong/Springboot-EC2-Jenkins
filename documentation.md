@@ -198,13 +198,16 @@ Follow instruction on jenkins management interface
 
 <br>
 
-- AWS to Jenkins
- - Select `Credentials` in the right hand sidebar.
-    - Select `Global credentials (unrestricted)` for system
-    - Add credentials.
-     - kind: `AWS credentials`
-     - secret id: your AWS username.
-     - secret access key
+- Link AWS to Jenkins
+ - Jenkins Dashboard > Manage Jenkins > Configure System
+  - scroll to Docker section
+  - Add ECR credentials:
+   - Docker label: Docker
+   - Docker registry URL: <your ECR url>
+   - credentials: add AWS ECR credentials
+   
+
+test connection to ensure it all works on jenkins and verify webhook on github
 
 
 <br>
