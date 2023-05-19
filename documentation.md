@@ -89,7 +89,7 @@ sudo systemctl status docker.service #<-- get the service status
 <br>
 
 
-- install git and maven
+- install git, maven and aws cli
 
 ```
 
@@ -97,6 +97,10 @@ sudo yum install git
 sudo wget https://repos.fedorapeople.org/repos/dchen/apache-maven/epel-apache-maven.repo -O /etc/yum.repos.d/epel-apache-maven.repo
 sudo sed -i s/\$releasever/6/g /etc/yum.repos.d/epel-apache-maven.repo
 sudo yum install -y apache-maven
+
+curl "https://d1vvhvl2y92vvt.cloudfront.net/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+sudo ./aws/install
 
 
 ```
@@ -665,4 +669,3 @@ sudo chmod 666 /var/run/docker.sock
 - push changes to git repository
 - confirm pipeline build in Jenkins
 
--
