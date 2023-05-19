@@ -41,13 +41,15 @@ pipeline {
     stage('Build Docker image') {
       steps {
         script {
-          docker.withRegistry("https://${ECR_REGISTRY}", 'ecr') {
-            def appImage = docker.build("${ECR_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}", "--file ${DOCKERFILE} ${env.WORKSPACE}")
+          docker.withRegistry("https://${ECR_REGISTRY}", 'c70c865e-ffbe-4d45-94f4-0e443d88cdec') {
+            def appImage = docker.image("${IMAGE_NAME}:${IMAGE_TAG}")
+            appImage.build("-f ${DOCKERFILE} ${env.WORKSPACE}")
             appImage.push()
-          }
-        }
       }
     }
+  }
+}
+
 
     
     stage('Deploy') {
