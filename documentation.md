@@ -194,6 +194,19 @@ Follow instruction on jenkins management interface
 
 <br>
 
+- AWS to Jenkins
+  - Select `Credentials` in the right hand sidebar.
+    - Select `Global credentials (unrestricted)` for system
+    - Add credentials.
+     - kind: `AWS credentials`
+     - secret id: your AWS username.
+     - secret access key
+
+
+<br>
+
+<br>
+
 
 ## Create an IAM user for Jenkins to access AWS services
 - Give the user IAM user the necessary permissions to access ECR and ECS.
@@ -273,7 +286,11 @@ To load an embedded MongoDB with Spring Boot, all that is needed is to add its m
 
 <br>
 
+<br>
+
 ![image](https://github.com/earchibong/springboot_project/assets/92983658/572b281c-6dd7-4201-a97a-e9dfb5b445e0)
+
+<br>
 
 <br>
 
@@ -410,8 +427,12 @@ This Dockerfile uses the official `OpenJDK 11 image` as the base, copies the Spr
 
 <br>
 
+<br>
+
 
 <img width="1294" alt="github-webhook-security" src="https://github.com/earchibong/springboot_project/assets/92983658/2fb5a18b-3ed3-488e-97c1-02dd3e728f24">
+
+<br>
 
 <br>
 
