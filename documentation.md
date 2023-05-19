@@ -676,3 +676,4 @@ sudo chmod 666 /var/run/docker.sock
 - confirm pipeline build in Jenkins
 
 --
+testing pipeline
