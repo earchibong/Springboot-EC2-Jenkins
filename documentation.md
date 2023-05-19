@@ -669,3 +669,4 @@ sudo chmod 666 /var/run/docker.sock
 - push changes to git repository
 - confirm pipeline build in Jenkins
 
+--
