@@ -241,11 +241,11 @@ I already have a role `ECR-Jenkins` that was created prerviously so i'm going to
 
 - Link AWS to Jenkins
  - Jenkins Dashboard > Manage Jenkins > Configure System
-  - scroll to Docker section
-  - Add ECR credentials:
-   - Docker label: Docker
-   - Docker registry URL: <your ECR url>
-   - credentials: add your ECR region and AWS IAM role
+ - scroll to Docker section
+ - Add credentials:
+   + Docker label: Docker
+   + Docker registry URL: <your ECR url>
+   + credentials: add your ECR region and AWS IAM role
    
 
 <br>
