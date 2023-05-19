@@ -5,4 +5,4 @@
 /.project
 /.idea
 /*.iml
-spring.data.mongodb.uri
+/spring.data.mongodb.uri
