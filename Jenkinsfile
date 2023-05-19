@@ -43,7 +43,7 @@ pipeline {
         script {
           withAWS(credentials: 'c70c865e-ffbe-4d45-94f4-0e443d88cdec', region: 'eu-west-2') {
             sh """
-              \$(aws ecr get-login --no-include-email --region eu-west-2)
+              \$(aws ecr get-login-password --region eu-west-2)
               docker build -t ${IMAGE_NAME}:${IMAGE_TAG} -f ${DOCKERFILE} ${env.WORKSPACE}
               docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${ECR_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
               docker push ${ECR_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
