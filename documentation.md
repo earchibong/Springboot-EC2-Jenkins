@@ -423,6 +423,9 @@ This Dockerfile uses the official `OpenJDK 11 image` as the base, copies the Spr
      - disable `ssl` for now as there is no certificate attached to jenkins
      - ensure that ports `22`, `80` and `443` are open in your jenkins security group
      - add the following `github webhook ip` over port `8080` in your ec2 security group settings:
+
+<br>
+
      ```
      
     192.30.252.0/22
