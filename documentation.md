@@ -208,20 +208,19 @@ Follow instruction on jenkins management interface
 <br>
 
 
-## Create an IAM user for Jenkins to access AWS services
+## Create an IAM Role for Jenkins to access AWS services
 - Give the user IAM user the necessary permissions to access ECR and ECS.
 
 I already have a user `terraform jenkins` that was created prerviously so i'm going to add permissions for ECR and ECS. However, here are the steps for creating a user and attaching permissions:
 
-- in `iam` console, create a user group `springboot`
-- add your user (my user is `terraform-jenkins`) or create one later if it doesn't already exist
+- in `iam` console, create a role (name it whatever you want)
+- I already have a role created `ECR-Jenkins`
 - click `add permissions`
- - select the permission +Policies to add to the user group: 
+ - select the permission + Policies to add to the role: 
     - ECS: `AmazonECS_FullAccess`
     - ECR: `AmazonEC2ContainerRegistryFullAccess`
     - EC2: `AmazonEC2FullAccess`
     - ECS: `AmazonECSTaskExecutionRolePolicy`
-- if you don't have a user already, create a new user and then add them to your new group
 
 <br>
 
@@ -230,6 +229,8 @@ I already have a user `terraform jenkins` that was created prerviously so i'm go
 <br>
 
 <br>
+
+- in the Jenkins instance, modify the IAM role for the instance: select `Actions > Security > Modify IAM Role`
 
 
 <br>
