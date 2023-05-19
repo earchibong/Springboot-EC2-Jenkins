@@ -233,13 +233,13 @@ I already have a role `ECR-Jenkins` that was created prerviously so i'm going to
 
 <br>
 
-https://user-images.githubusercontent.com/92983658/217239247-9182aa4b-0f6e-4d9a-a46c-c3331c4af7c9.png
+![image](https://github.com/earchibong/springboot_project/assets/92983658/4efbfc4b-7c0b-4666-a47f-68bcc6c16177)
 
 <br>
 
 <br>
 
-https://user-images.githubusercontent.com/92983658/217239384-70c54070-95ac-4020-a2f4-64d5c2b09a32.png
+![image](https://github.com/earchibong/springboot_project/assets/92983658/7a7b8c33-85f2-4728-8d41-c442086e1db6)
 
 <br>
 
