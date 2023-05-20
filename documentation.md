@@ -424,6 +424,7 @@ This Dockerfile uses the official `OpenJDK 11 image` as the base, copies the Spr
 
 <br>
 
+<br>
 
 - Build triggers: `GitHub hook trigger for GITScm polling`
     - configure <a href="https://docs.github.com/en/webhooks-and-events/webhooks/creating-webhooks">webhook on Github here</a>
@@ -432,18 +433,8 @@ This Dockerfile uses the official `OpenJDK 11 image` as the base, copies the Spr
      - select `x-www-form-urlencoded ` content type
      - disable `ssl` for now as there is no certificate attached to jenkins
      - ensure that ports `22`, `80` and `443` are open in your jenkins security group
-     - add the following `github webhook ip` over port `8080` in your ec2 security group settings:
 
 <br>
-
-     ```
-     
-    192.30.252.0/22
-    185.199.108.0/22
-    140.82.112.0/20
-    
-    ```
-
 
 <br>
 
@@ -454,8 +445,25 @@ This Dockerfile uses the official `OpenJDK 11 image` as the base, copies the Spr
 
 <br>
 
+- add the following `github webhook ip` over port `8080` in your ec2 security group settings:
+
+<br>
+
+```
+     
+    192.30.252.0/22
+    185.199.108.0/22
+    140.82.112.0/20
+
+
+```
+
+<br>
+
+<br>
 
 <img width="1294" alt="github-webhook-security" src="https://github.com/earchibong/springboot_project/assets/92983658/2fb5a18b-3ed3-488e-97c1-02dd3e728f24">
+
 
 <br>
 
@@ -481,7 +489,10 @@ This Dockerfile uses the official `OpenJDK 11 image` as the base, copies the Spr
 
 - configure Jenkins with github server
 
+<br>
+
 ```
+
 # path:
 Jenkins Dashboard > Manage Jenkins > Configure System
 scroll to Github section
@@ -572,13 +583,12 @@ pipeline {
     
     stage('Build Docker image') {
       steps {
-        echo 'Build Dockerfile....'
         script {
-          sh("eval \$(aws ecr get-login-password --no-include-email --region eu-west-2 | sed 's|https://||')")
-          sh "docker build --tag ${IMAGE_NAME} --file ${DOCKERFILE} ${env.WORKSPACE}"
-          docker.withRegistry("https://${ECR_REGISTRY}") {
-            docker.image("${IMAGE_NAME}:${IMAGE_TAG}").push()
-          }
+              sh """aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}"""
+              sh "docker build --tag ${IMAGE_NAME} --file ${DOCKERFILE} ${env.WORKSPACE}"
+              docker.withRegistry("https://${ECR_REGISTRY}") {
+                docker.image("${IMAGE_NAME}:${IMAGE_TAG}").push()
+              }
         }
       }
     }
@@ -586,68 +596,68 @@ pipeline {
     stage('Deploy App') {
       steps {
         script {
-          def ecsParams = [
-            containerDefinitions: [
-              [
-                name: "myapp",
-                image: "${ECR_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}",
-                essential: true,
-                portMappings: [
+              def ecsParams = [
+                containerDefinitions: [
                   [
-                    containerPort: 8080,
-                    hostPort: 0,
-                    protocol: "tcp"
+                    name: "myapp",
+                    image: "${ECR_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}",
+                    essential: true,
+                    portMappings: [
+                      [
+                        containerPort: 8080,
+                        hostPort: 0,
+                        protocol: "tcp"
+                      ]
+                    ],
+                    environment: [
+                      [
+                        name: "SPRING_DATA_MONGODB_URI",
+                        value: "<your mongodb url>"
+                      ]
+                    ]
                   ]
                 ],
-                environment: [
-                  [
-                    name: "SPRING_DATA_MONGODB_URI",
-                    value: "<your mongodb url>"
-                  ]
+                taskRoleArn: "arn:aws:iam::123456789012:role/ecsTaskExecutionRole",
+                family: "my-task-family",
+                networkMode: "awsvpc",
+                requiresCompatibilities: ["FARGATE"],
+                cpu: "256",
+                memory: "512",
+                executionRoleArn: "arn:aws:iam::123456789012:role/ecsTaskExecutionRole",
+                networkConfiguration: [
+                awsvpcConfiguration: [
+                  assignPublicIp: "ENABLED",
+                  subnets: ["subnet-12345678"],
+                  securityGroups: ["sg-12345678"]
                 ]
               ]
-            ],
-            taskRoleArn: "arn:aws:iam::123456789012:role/ecsTaskExecutionRole",
-            family: "my-task-family",
-            networkMode: "awsvpc",
-            requiresCompatibilities: ["FARGATE"],
-            cpu: "256",
-            memory: "512",
-            executionRoleArn: "arn:aws:iam::123456789012:role/ecsTaskExecutionRole",
-            networkConfiguration: [
-              awsvpcConfiguration: [
-                assignPublicIp: "ENABLED",
-                subnets: ["subnet-12345678"],
-                securityGroups: ["sg-12345678"]
-              ]
             ]
-          ]
 
-          ecsParams.containerDefinitionsJson = ecsParams.containerDefinitions as String
-          ecsParams.networkConfigurationJson = ecsParams.networkConfiguration as String
+              ecsParams.containerDefinitionsJson = ecsParams.containerDefinitions as String
+              ecsParams.networkConfigurationJson = ecsParams.networkConfiguration as String
 
-          def taskDefinition = null
-          withCredentials([[
-              $class: 'AmazonWebServicesCredentialsBinding',
-              accessKeyVariable: 'AWS_ACCESS_KEY_ID',
-              credentialsId: 'aws-credentials',
-              secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
-            ]]) {
-            sh """
-              aws configure set aws_access_key_id ${env.AWS_ACCESS_KEY_ID}
-              aws configure set aws_secret_access_key ${env.AWS_SECRET_ACCESS_KEY}
-              aws configure set default.region ${env.AWS_REGION}
+              def taskDefinition = null
+              withCredentials([[
+                  $class: 'AmazonWebServicesCredentialsBinding',
+                  accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                  credentialsId: 'aws-credentials',
+                  secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
+                ]]) {
+                sh """
+                  aws configure set aws_access_key_id ${env.AWS_ACCESS_KEY_ID}
+                  aws configure set aws_secret_access_key ${env.AWS_SECRET_ACCESS_KEY}
+                  aws configure set default.region ${env.AWS_REGION}
 
-              aws ecs register-task-definition --cli-input-json '${ecsParams as String}'
-              taskDefinition=\$(aws ecs list-task-definitions --family-prefix my-task-family | jq -r '.taskDefinitionArns[0]')
+                  aws ecs register-task-definition --cli-input-json '${ecsParams as String}'
+                  taskDefinition=\$(aws ecs list-task-definitions --family-prefix my-task-family | jq -r '.taskDefinitionArns[0]')
 
-              aws ecs update-service --cluster ${ECS_CLUSTER} --service ${ECS_SERVICE} --task-definition \${taskDefinition}
-            """
+                  aws ecs update-service --cluster ${ECS_CLUSTER} --service ${ECS_SERVICE} --task-definition \${taskDefinition}
+                """
+              }
+            }
           }
         }
-      }
     }
-  }
 }
 
 
