@@ -56,11 +56,6 @@ sudo yum install docker
 sudo systemctl enable docker.service
 sudo service docker start
 
-# Add group membership for the default ec2-user so you can run all docker commands without using the sudo command
-sudo groupadd docker
-sudo usermod -aG docker $USER
-newgrp docker
-
 # verify docker service
 sudo systemctl status docker.service
 
@@ -227,11 +222,10 @@ I already have a role `ECR-Jenkins` that was created prerviously so i'm going to
  - select the permission + Policies to add to the role: 
     - ECR: `AmazonEC2ContainerRegistryFullAccess`
     - EC2: `AmazonEC2FullAccess`
-    - Docker: `AmazonECSTaskExecutionRolePolicy`
 
 <br>
 
-<img width="1390" alt="ecr-jenkins" src="https://github.com/earchibong/springboot_project/assets/92983658/8c4ce1d5-40bb-4f48-a5c9-9664b74949a6">
+<img width="1390" alt="ecr_iam" src="https://github.com/earchibong/springboot_project/assets/92983658/55fc5b46-e2f1-4b0a-965a-b0ba7acda8a1">
 
 <br>
 
@@ -267,21 +261,6 @@ I already have a role `ECR-Jenkins` that was created prerviously so i'm going to
 <br>
     
 <img width="1387" alt="docker" src="https://github.com/earchibong/springboot_project/assets/92983658/38f78a6e-cf16-4625-80a9-b1e6752ef3b5">
-
-<br>
-
-<br>
-
-## Create ECS Cluster
-- Go to the Amazon ECS console.
-- Click on "Clusters" in the sidebar and then click `Create Cluster.`
-- Enter a name for your cluster, such as `springboot-project`
-- Click `Create` to create the cluster.
-
-
-<br>
-
-<img width="1354" alt="ecs_cluster" src="https://github.com/earchibong/springboot_project/assets/92983658/e7888696-da81-4a0e-a587-02aabeda2216">
 
 <br>
 
@@ -691,6 +670,7 @@ After you've connected to `Jenkins` instance on your terminal, add the following
 
 sudo groupadd docker
 sudo usermod -aG docker $USER
+sudo usermod -aG docker <IAM_ROLE>
 #sudo chmod 777 /var/run/docker.sock
 sudo chmod 666 /var/run/docker.sock
 
