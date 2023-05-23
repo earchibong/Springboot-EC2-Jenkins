@@ -6,14 +6,13 @@ As per the project scope, the following steps, a springboot with mongodb embedde
 Job Description From Upwork that i will be working on in this project:
 ```
 
-I need an engineer to set up the configuration for a small project. We have Java Spring Boot App on Github. The database will Be MongoDB. We require the following:
+I need an engineer to set up the configuration for a small project. We have Java Spring Boot App on Github. The database will Be MongoDB. 
+We require the following:
 - CI/CD to AWS
 - Dockerfile / Dockercompose
 - Proposition to the approach
 
 ```
-
-<br>
 
 <br>
 
@@ -352,14 +351,13 @@ In the application folder, create a folder named `app` and then create a docker 
 ```
 
     
-# Use a base image with Java and necessary dependencies
 FROM adoptopenjdk:11-jre-hotspot
 
 # Set the working directory in the container
 WORKDIR /app
 
 # Copy the executable JAR file to the container
-COPY target/mongodb-springboot-1.0.0-SNAPSHOT.jar app.jar
+COPY target/mongodb-springboot.jar app.jar
 
 # Expose the port on which your Spring Boot application listens
 EXPOSE 8080
@@ -557,10 +555,7 @@ pipeline {
     IMAGE_NAME = "mongodb-springboot"
     IMAGE_TAG = "latest"
     AWS_REGION = "eu-west-2"
-    ECS_CLUSTER = "springboot_project"
-    ECS_SERVICE = "springboot_service"
     DOCKERFILE = "Dockerfile"
-    TASK_FAMILY = "springboot_task_family"
     MAVEN_OPTS = "-Dmaven.repo.local=$WORKSPACE/.m2"
   }
   
