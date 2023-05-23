@@ -111,7 +111,7 @@ curl "https://d1vvhvl2y92vvt.cloudfront.net/awscli-exe-linux-x86_64.zip" -o "aws
 unzip awscliv2.zip
 sudo ./aws/install
 
-wget https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)
+sudo wget https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)
 sudo mv docker-compose-$(uname -s)-$(uname -m) /usr/local/bin/docker-compose
 sudo chmod -v +x /usr/local/bin/docker-compose
 docker-compose version
@@ -250,6 +250,20 @@ I already have a role `ECR-Jenkins` that was created prerviously so i'm going to
 
 <br>
 
+- Allow the IAM role and Jenkins to execute Docker and Docker Compose commands on the EC2 instance
+
+```
+
+sudo groupadd docker
+sudo usermod -aG docker $USER
+sudo usermod -aG docker <IAM_ROLE>
+
+```
+
+<br>
+
+<br>
+
 
 - Link AWS to Jenkins
  - Jenkins Dashboard > Manage Jenkins > Configure System
@@ -313,102 +327,105 @@ To load an embedded MongoDB with Spring Boot, all that is needed is to add its m
 
 <br>
 
-- Open the `application.properties` file located in src/main/resources. Update the MongoDB URI to point to your MongoDB instance with value: `mongodb+srv://<username>:<password>@cluster0.ixif8fy.mongodb.net/?retryWrites=true&w=majority`
+- Open the `application.properties` file located in src/main/resources. Update the MongoDB URI to point to your MongoDB instance with value: `mongodb://mongodb:27017/<your-database-name>`
 
 <br>
 
+<img width="1027" alt="spring_boot_db" src="https://github.com/earchibong/springboot_project/assets/92983658/f41e6da3-7d2f-4500-ad64-689000e8e350">
 
-<img width="1023" alt="mongo_rui" src="https://github.com/earchibong/springboot_project/assets/92983658/69429b96-9c7c-4a0a-87c1-8baba6576266">
-
-
-<br>
-
-<br>
-
-
-In this config. i'm using the mongodb service provider `Mongo Atlas` so to get the `mongodb uri`...
-
-**To get the mongoDb uri**
-- sign up to <a href="https://www.mongodb.com/cloud/atlas/register"> `mongodb`</a>
-- deploy your database
-
-<br>
-
-<img width="1387" alt="deploy_cluster_1a" src="https://github.com/earchibong/springboot_project/assets/92983658/0b1ba567-37ff-4c4b-bc16-5a315e2c9fdc">
 
 <br>
 
 <br>
 
-<img width="1374" alt="create_cluster_1b" src="https://github.com/earchibong/springboot_project/assets/92983658/745d398c-bb44-4d9a-9613-4cb35f3a998b">
 
-<br>
+In this config. I have overridden the default port 8080 to 27017. Usually we put `host` as `localhost` when we develop apps locally. But we have to put container name as the host here, since we are connecting to `mongo db docker` container and not the local mongo db on the machine. Make a note of the database name as a `mongodb docker` container will be created later with it.
 
-<br>
-
-<img width="1390" alt="create_cluster_1c" src="https://github.com/earchibong/springboot_project/assets/92983658/935d2857-0ecc-4908-89df-152cc3c6c918">
-
-
-
-<br>
-
-- click the connect button to explore connection options. for this project, we will use the `drivers` option. So copy the connection string provided at add to the application layer in the app code base.
-
-<br>
-
-<br>
-
-<img width="1383" alt="mongo_connect_1a" src="https://github.com/earchibong/springboot_project/assets/92983658/7891619d-7b66-4767-a0e3-bd6fce765d19">
-
-<br>
-
-<br>
-
-<img width="1390" alt="mongo_connect_1b" src="https://github.com/earchibong/springboot_project/assets/92983658/6d1a9cb6-d707-4eaa-9052-ca61c7fbd780">
-
-<br>
-
-<br>
-
-<img width="823" alt="mongo_uri" src="https://github.com/earchibong/springboot_project/assets/92983658/eb233ffb-5eda-4852-95b4-4138d4f671d8">
-
-<br>
 
 <br>
 
 <br>
 
 ## Create a Dockerfile For The Application
-In the application folder, create a folder named `app` and then create a docker file in the `app` directory. Add the following to the  docker file:
+In the application folder, create a folder named `app` and then create a docker file and add the following to the  docker file:
 
 ```
 
-FROM openjdk:11-jdk
+    
+# Use a base image with Java and necessary dependencies
+FROM adoptopenjdk:11-jre-hotspot
 
+# Set the working directory in the container
 WORKDIR /app
 
-COPY target/mongodb-springboot-1.0.0-SNAPSHOT.jar /app
+# Copy the executable JAR file to the container
+COPY target/mongodb-springboot-1.0.0-SNAPSHOT.jar app.jar
 
+# Expose the port on which your Spring Boot application listens
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-jar", "/mongodb-springboot-1.0.0-SNAPSHOT.jar"]
+# Set the entry point command to run the application
+ENTRYPOINT ["java", "-jar", "app.jar"]
+
 
 ```
 
 <br>
 
-This Dockerfile uses the official `OpenJDK 11 image` as the base, copies the Spring Boot app's JAR file into the container, and sets the entry point to start the app.
+This Dockerfile uses the official `adoptopenjdk 11 image` as the base, copies the Spring Boot app's JAR file into the container, and sets the entry point to start the app.
 
 <br>
 
 <br>
 
-<img width="1107" alt="dockerfile" src="https://github.com/earchibong/springboot_project/assets/92983658/6a8003a9-014f-423b-9021-f3e793d9b7a3">
+<img width="811" alt="dockerfile_1a" src="https://github.com/earchibong/springboot_project/assets/92983658/cb42531a-0f15-4450-9c3a-de759dadcb1f">
 
 <br>
 
 <br>
 
+## Create Docker-Compse File
+- Create a file named `docker-compose.yml` in the project's root directory and add the following:
+```
+    
+version: '3'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      container_name: "springboot-app"
+    ports:
+      - 8080:8080
+    environment:
+      - MONGO_HOST=mongodb
+      - MONGO_PORT=27017
+      - MONGO_DB=springboot-db
+    depends_on:
+      - mongodb
+
+  mongodb:
+    image: mongo:latest
+    container_name: "mongo-db"
+    ports:
+      - 27017:27017
+
+
+    
+```
+
+<br>
+    
+<br>
+    
+<img width="822" alt="docker_compose" src="https://github.com/earchibong/springboot_project/assets/92983658/7e685490-a6c7-4140-be35-17190dfc1aec">
+
+<br>
+    
+<br>
+    
+
+    
 ## Create A Jenkins Job For The CI/CD Pipeline
 
 - Configure Jenkins pipeline: Go to the Jenkins Dashboard and create new job
