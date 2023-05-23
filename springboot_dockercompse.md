@@ -532,16 +532,15 @@ test connection to ensure it all works on jenkins and verify webhook on github
 <br>
 
 - in the root directory of your app file, create a file named `Jenkinsfile`
-- create the Jenkinsfile as follows:
 
 <br>
 
 Here's an overview of the steps that will be included in the job:
-    - Check out the source code from the GitHub repository.
-    - Build the Spring Boot app with Maven or Gradle.
-    - Build the Docker image and tag it with the ECR repository URL.
-    - Push the Docker image to the ECR repository.
-    - Deploy the Docker image to ECS using a task definition and a service.
+- Check out the source code from the GitHub repository.
+- Build the Spring Boot app with Maven or Gradle.
+- Build the Docker image and tag it with the ECR repository URL.
+- Push the Docker image to the ECR repository.
+- Deploy the Docker image to ECS using a task definition and a service.
     
 
 <br>
