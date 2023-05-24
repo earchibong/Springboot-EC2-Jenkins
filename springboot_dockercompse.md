@@ -206,6 +206,25 @@ Follow instruction on jenkins management interface
 
 <br>
 
+- Create credentials to allow Jenkins to ssh into EC2
+ - Create a Jenkins credential for the private key: Go to `"Manage Jenkins" > "Manage Credentials" > "Jenkins" > "Global credentials" (or "System" depending on Jenkins version) and click on "Add Credentials".`
+  + Choose the appropriate "Kind" for your private key (e.g., "ssh username with private key").
+  + Provide a meaningful "ID" and "Description".
+  + username is "ec2-user" as i', using amazon linux instance
+  + copy rsa key for ec2 and store it
+  
+  + Save the credentials.
+
+<br>
+
+<br>
+
+imge
+
+<br>
+
+<br>
+
 
 
 ## Create an IAM Role for Jenkins to access AWS services
@@ -259,7 +278,7 @@ sudo usermod -aG docker <IAM_ROLE>
 <br>
 
 
-- Link AWS to Jenkins
+- Link AWS ECR to Jenkins
  - Jenkins Dashboard > Manage Jenkins > Configure System
  - scroll to Docker section
  - Add credentials:
@@ -275,6 +294,7 @@ sudo usermod -aG docker <IAM_ROLE>
 <br>
 
 <br>
+
 
 
 ## Create an ECR repository for Docker image.
@@ -610,8 +630,8 @@ pipeline {
       steps {
         script {
               sh "docker pull ${ECR_REGISTRY}:${IMAGE_TAG}"
-              sh "scp -o StrictHostKeyChecking=no ${COMPOSE_FILE} ${EC2_INSTANCE}:~/docker-compose.yml"
-              sh "ssh -o StrictHostKeyChecking=no ${EC2_INSTANCE} 'docker-compose -f ~/docker-compose.yml up -d'"
+              sh "scp -i ${credentials('private-key-credential-id-from-jenkins')} -o StrictHostKeyChecking=no ${COMPOSE_FILE} ${EC2_INSTANCE}:~/docker-compose.yml"
+              sh "ssh -i ${credentials('private-key-credential-id-from-jenkins')} -o StrictHostKeyChecking=no ${EC2_INSTANCE} 'docker-compose -f ~/docker-compose.yml up -d'"
         }
       }
     }
