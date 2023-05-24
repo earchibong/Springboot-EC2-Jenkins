@@ -41,7 +41,7 @@ pipeline {
         script {
               sh """aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}"""
               sh "docker build --tag ${IMAGE_NAME} --file ${DOCKERFILE} ${env.WORKSPACE}"
-              docker.withRegistry("https://350100602815.dkr.ecr.eu-west-2.amazonaws.com/ecs-local") {
+              docker.withRegistry("https://${ECR_REGISTRY}/ecs-local") {
                 docker.image("${IMAGE_NAME}:${IMAGE_TAG}").push()
               }
         }
