@@ -1,15 +1,13 @@
 pipeline {
   environment {
-    PROJECT     = 'springboot-ecs'
+    PROJECT     = 'springboot-docker'
     ECR_REGISTRY = "350100602815.dkr.ecr.eu-west-2.amazonaws.com/ecs-local"
     IMAGE_NAME = "mongodb-springboot"
     IMAGE_TAG = "latest"
     AWS_REGION = "eu-west-2"
-    ECS_CLUSTER = "springboot_project"
-    ECS_SERVICE = "springboot_service"
     DOCKERFILE = "Dockerfile"
-    TASK_FAMILY = "springboot_task_family"
     MAVEN_OPTS = "-Dmaven.repo.local=$WORKSPACE/.m2"
+    COMPOSE_FILE='docker-compose.yml'
   }
   
   agent any
@@ -50,9 +48,17 @@ pipeline {
       }
     }
 
-    stage('deploy') {
+    stage('Deploy to EC2') {
       steps {
-        echo 'deploy coming soon...'
+        script {
+              // Connect to the EC2 instance using IAM role
+              withAWS(region: 'eu-west2', role: 'arn:aws:iam::350100602815:instance-profile/ECR-Jenkins') {
+              // Run the Docker Compose deployment on the EC2 instance
+              // sh 'cd /path/to/project && docker-compose pull && docker-compose up -d'
+              sh "docker pull ${ECR_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
+              sh "docker-compose -f ${COMPOSE_FILE} up -d"
+              }
+        }
       }
     }
   }

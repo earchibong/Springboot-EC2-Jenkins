@@ -1,18 +1,7 @@
 # CI/CD Pipeline for Springboot MongoDB APP Using Jenkins, GitHub, Amazon ECR And Docker-Compose
 
-As per the project scope, the following steps, a springboot with mongodb embedded will be built, pushed to ECR, and deployed to EC2 using Jenkins.
+As per the <a href="https://github.com/earchibong/springboot_project/tree/main#readme">project scope</a>, with the following steps, a springboot with mongodb embedded will be built, pushed to ECR, and deployed to EC2 using Jenkins.
 
-### Project Scope
-Job Description From Upwork that i will be working on in this project:
-```
-
-I need an engineer to set up the configuration for a small project. We have Java Spring Boot App on Github. The database will Be MongoDB. 
-We require the following:
-- CI/CD to AWS
-- Dockerfile / Dockercompose
-- Proposition to the approach
-
-```
 
 <br>
 
@@ -531,6 +520,8 @@ test connection to ensure it all works on jenkins and verify webhook on github
 
 <br>
 
+<br>
+
 - in the root directory of your app file, create a file named `Jenkinsfile`
 
 <br>
@@ -549,13 +540,14 @@ Here's an overview of the steps that will be included in the job:
 
 pipeline {
   environment {
-    PROJECT     = 'springboot-ecs'
-    ECR_REGISTRY = "<your aws account>.dkr.ecr.eu-west-2.amazonaws.com/ecs-local"
+    PROJECT     = 'springboot-docker'
+    ECR_REGISTRY = "350100602815.dkr.ecr.eu-west-2.amazonaws.com/ecs-local"
     IMAGE_NAME = "mongodb-springboot"
     IMAGE_TAG = "latest"
     AWS_REGION = "eu-west-2"
     DOCKERFILE = "Dockerfile"
     MAVEN_OPTS = "-Dmaven.repo.local=$WORKSPACE/.m2"
+    COMPOSE_FILE='docker-compose.yml'
   }
   
   agent any
@@ -573,16 +565,11 @@ pipeline {
     
     stage('Checkout') {
       steps {
-      checkout scmGit(
-        branches: [[name: '*/main'],
-        extensions: [], 
-        userRemoteConfigs: [[credentialsId: 'e1868d62-3cd4-44da-aba1-a24e2183d6e3', url: 'https://github.com/earchibong/springboot_project.git']]
-        )
-        
+      checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'e1868d62-3cd4-44da-aba1-a24e2183d6e3', url: 'https://github.com/earchibong/springboot_project.git']])
       }
     }
     
-    stage('Build Jar image') {
+    stage('Build Jar file') {
       steps {
         sh "mvn -f ${env.WORKSPACE}/pom.xml clean package -DskipTests"
         archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
@@ -600,72 +587,21 @@ pipeline {
         }
       }
     }
-    
-    stage('Deploy App') {
+
+    stage('Deploy to EC2') {
       steps {
         script {
-              def ecsParams = [
-                containerDefinitions: [
-                  [
-                    name: "myapp",
-                    image: "${ECR_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}",
-                    essential: true,
-                    portMappings: [
-                      [
-                        containerPort: 8080,
-                        hostPort: 0,
-                        protocol: "tcp"
-                      ]
-                    ],
-                    environment: [
-                      [
-                        name: "SPRING_DATA_MONGODB_URI",
-                        value: "<your mongodb url>"
-                      ]
-                    ]
-                  ]
-                ],
-                taskRoleArn: "arn:aws:iam::123456789012:role/ecsTaskExecutionRole",
-                family: "my-task-family",
-                networkMode: "awsvpc",
-                requiresCompatibilities: ["FARGATE"],
-                cpu: "256",
-                memory: "512",
-                executionRoleArn: "arn:aws:iam::123456789012:role/ecsTaskExecutionRole",
-                networkConfiguration: [
-                awsvpcConfiguration: [
-                  assignPublicIp: "ENABLED",
-                  subnets: ["subnet-12345678"],
-                  securityGroups: ["sg-12345678"]
-                ]
-              ]
-            ]
-
-              ecsParams.containerDefinitionsJson = ecsParams.containerDefinitions as String
-              ecsParams.networkConfigurationJson = ecsParams.networkConfiguration as String
-
-              def taskDefinition = null
-              withCredentials([[
-                  $class: 'AmazonWebServicesCredentialsBinding',
-                  accessKeyVariable: 'AWS_ACCESS_KEY_ID',
-                  credentialsId: 'aws-credentials',
-                  secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
-                ]]) {
-                sh """
-                  aws configure set aws_access_key_id ${env.AWS_ACCESS_KEY_ID}
-                  aws configure set aws_secret_access_key ${env.AWS_SECRET_ACCESS_KEY}
-                  aws configure set default.region ${env.AWS_REGION}
-
-                  aws ecs register-task-definition --cli-input-json '${ecsParams as String}'
-                  taskDefinition=\$(aws ecs list-task-definitions --family-prefix my-task-family | jq -r '.taskDefinitionArns[0]')
-
-                  aws ecs update-service --cluster ${ECS_CLUSTER} --service ${ECS_SERVICE} --task-definition \${taskDefinition}
-                """
+              // Connect to the EC2 instance using IAM role
+              withAWS(region: 'your-aws-region', role: 'arn:aws:iam::your-account-id:role/your-iam-role-name') {
+              // Run the Docker Compose deployment on the EC2 instance
+              // sh 'cd /path/to/project && docker-compose pull && docker-compose up -d'
+              sh "docker pull ${ECR_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
+              sh "docker-compose -f ${COMPOSE_FILE} up -d"
               }
-            }
-          }
         }
+      }
     }
+  }
 }
 
 
