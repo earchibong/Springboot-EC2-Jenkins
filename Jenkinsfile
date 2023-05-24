@@ -39,20 +39,12 @@ pipeline {
     stage('Build Docker image') {
       steps {
         script {
-            withAWS(region: 'eu-west-2', role: 'arn:aws:iam::350100602815:role/ECR-Jenkins') {
                sh """aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}"""
                sh "docker build --tag ${IMAGE_NAME} --file ${DOCKERFILE} ${env.WORKSPACE}"
-              docker.withRegistry("https://${ECR_REGISTRY}") {
+                docker.withRegistry("https://${ECR_REGISTRY}") {
                 docker.image("${IMAGE_NAME}:${IMAGE_TAG}").push()
-              
-               // sh """
-               // \$(aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY})
-               // docker build -t ${IMAGE_NAME}:${IMAGE_TAG} -f ${DOCKERFILE} ${env.WORKSPACE}
-               // docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${ECR_REGISTRY}:${IMAGE_TAG}
-               // docker push ${ECR_REGISTRY}:${IMAGE_TAG}
-               // """
               }
-            }  
+              
         }
       }
     }
