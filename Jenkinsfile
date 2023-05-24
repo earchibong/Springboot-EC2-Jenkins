@@ -1,7 +1,7 @@
 pipeline {
   environment {
-    PROJECT     = 'springboot-docker'
-    ECR_REGISTRY = "350100602815.dkr.ecr.eu-west-2.amazonaws.com/ecs-local"
+    PROJECT     = 'mongodb-springboot'
+    ECR_REGISTRY = "350100602815.dkr.ecr.eu-west-2.amazonaws.com/mongodb-springboot"
     IMAGE_NAME = "mongodb-springboot"
     IMAGE_TAG = "latest"
     AWS_REGION = "eu-west-2"
@@ -39,11 +39,20 @@ pipeline {
     stage('Build Docker image') {
       steps {
         script {
-              sh """aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}"""
-              sh "docker build --tag ${IMAGE_NAME} --file ${DOCKERFILE} ${env.WORKSPACE}"
-              docker.withRegistry("https://${ECR_REGISTRY}/ecs-local") {
+            withAWS(region: 'eu-west-2', role: 'arn:aws:iam::350100602815:role/ECR-Jenkins') {
+               sh """aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}"""
+               sh "docker build --tag ${IMAGE_NAME} --file ${DOCKERFILE} ${env.WORKSPACE}"
+              docker.withRegistry("https://${ECR_REGISTRY}") {
                 docker.image("${IMAGE_NAME}:${IMAGE_TAG}").push()
+              
+               // sh """
+               // \$(aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY})
+               // docker build -t ${IMAGE_NAME}:${IMAGE_TAG} -f ${DOCKERFILE} ${env.WORKSPACE}
+               // docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${ECR_REGISTRY}:${IMAGE_TAG}
+               // docker push ${ECR_REGISTRY}:${IMAGE_TAG}
+               // """
               }
+            }  
         }
       }
     }
@@ -55,7 +64,7 @@ pipeline {
               withAWS(region: 'eu-west2', role: 'arn:aws:iam::350100602815:role/ECR-Jenkins') {
               // Run the Docker Compose deployment on the EC2 instance
               // sh 'cd /path/to/project && docker-compose pull && docker-compose up -d'
-              sh "docker pull ${ECR_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
+              sh "docker pull ${ECR_REGISTRY}:${IMAGE_TAG}"
               sh "docker-compose -f ${COMPOSE_FILE} up -d"
               }
         }

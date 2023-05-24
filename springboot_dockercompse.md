@@ -5,6 +5,12 @@ As per the <a href="https://github.com/earchibong/springboot_project/tree/main#r
 
 <br>
 
+<img width="756" alt="upwork_cicd" src="https://github.com/earchibong/springboot_project/assets/92983658/58b9d072-cdc5-41a9-8a82-131838703003">
+
+<br>
+
+<br>
+
 ## Project Steps:
 - <a href=" ">Set up an EC2 instance with Docker and Jenkins installed.</a>
 - <a href="https://github.com/earchibong/springboot_project/blob/main/documentation.md#create-an-iam-user-for-jenkins-to-access-aws-services">Create an IAM 
@@ -272,9 +278,20 @@ sudo usermod -aG docker <IAM_ROLE>
 
 
 ## Create an ECR repository for Docker image.
+ECR doesn't usually include image names when tagging, only the image tag like below...
+
+ ```
+ 
+ docker push aws_account_id.dkr.ecr.us-west-2.amazonaws.com/my-repository:tag
+
+ ```
+
+ .... so, to make it easy tag and push in jenkinspipeline, make sure your repository name is your docker image name.
+
 ```
 
-aws ecr create-repository --repository-name ecs-local --image-scanning-configuration scanOnPush=true --region eu-west-2
+
+aws ecr create-repository --repository-name mongodb-springboot --image-scanning-configuration scanOnPush=true --region eu-west-2
 
 ```
 
@@ -494,7 +511,7 @@ services:
 
 ```
 
-# path:
+# configuration path:
 Jenkins Dashboard > Manage Jenkins > Configure System
 scroll to Github section
 Add github server:
@@ -540,8 +557,8 @@ Here's an overview of the steps that will be included in the job:
 
 pipeline {
   environment {
-    PROJECT     = 'springboot-docker'
-    ECR_REGISTRY = "350100602815.dkr.ecr.eu-west-2.amazonaws.com/ecs-local"
+    PROJECT     = 'mongodb-springboot'
+    ECR_REGISTRY = "350100602815.dkr.ecr.eu-west-2.amazonaws.com/mongodb-springboot"
     IMAGE_NAME = "mongodb-springboot"
     IMAGE_TAG = "latest"
     AWS_REGION = "eu-west-2"
@@ -595,7 +612,7 @@ pipeline {
               withAWS(region: 'your-aws-region', role: 'arn:aws:iam::your-account-id:role/your-iam-role-name') {
               // Run the Docker Compose deployment on the EC2 instance
               // sh 'cd /path/to/project && docker-compose pull && docker-compose up -d'
-              sh "docker pull ${ECR_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
+              sh "docker pull ${ECR_REGISTRY}:${IMAGE_TAG}"
               sh "docker-compose -f ${COMPOSE_FILE} up -d"
               }
         }
