@@ -54,8 +54,8 @@ pipeline {
       steps {
         script {
               sh "docker pull ${ECR_REGISTRY}:${IMAGE_TAG}"
-              sh "scp -i ${credentials('19f1df87-2d39-4d0f-b55c-f7afedf97615')} -o StrictHostKeyChecking=no ${COMPOSE_FILE} ${EC2_INSTANCE}:~/docker-compose.yml"
-              sh "ssh -i ${credentials('19f1df87-2d39-4d0f-b55c-f7afedf97615')} -o StrictHostKeyChecking=no ${EC2_INSTANCE} 'docker-compose -f ~/docker-compose.yml up -d'"
+              sh """scp -i ${credentials('19f1df87-2d39-4d0f-b55c-f7afedf97615')} -o StrictHostKeyChecking=no ${COMPOSE_FILE} ${EC2_INSTANCE}:~/docker-compose.yml"""
+              sh """ssh -i ${credentials('19f1df87-2d39-4d0f-b55c-f7afedf97615')} -o StrictHostKeyChecking=no ${EC2_INSTANCE} 'docker-compose -f ~/docker-compose.yml up -d'"""
         }
       }
       
