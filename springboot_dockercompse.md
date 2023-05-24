@@ -297,13 +297,13 @@ aws ecr create-repository --repository-name mongodb-springboot --image-scanning-
 
 <br>
 
-<img width="1388" alt="ecr_repo" src="https://github.com/earchibong/springboot_project/assets/92983658/6a02bd66-ee92-4b3e-a990-79818678e1d6">
+<img width="1382" alt="repo_name" src="https://github.com/earchibong/springboot_project/assets/92983658/5bd190a4-2775-4502-a8aa-e48c84b1b993">
 
 <br>
 
 <br>
 
-<img width="1385" alt="ecr_verify" src="https://github.com/earchibong/springboot_project/assets/92983658/e4045010-22f7-4a54-8bbb-ba92db747b3b">
+<img width="1387" alt="ecr_verify" src="https://github.com/earchibong/springboot_project/assets/92983658/c9a0d3a7-242c-44db-b89a-bbd22a12c845">
 
 <br>
 
