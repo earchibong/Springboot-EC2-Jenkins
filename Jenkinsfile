@@ -8,6 +8,7 @@ pipeline {
     DOCKERFILE = "Dockerfile"
     MAVEN_OPTS = "-Dmaven.repo.local=$WORKSPACE/.m2"
     COMPOSE_FILE="docker-compose.yml"
+    EC2_INSTANCE = "ec2-user@ec2-18-133-227-76.eu-west-2.compute.amazonaws.com"
   }
   
   agent any
@@ -52,15 +53,12 @@ pipeline {
     stage('Deploy to EC2') {
       steps {
         script {
-              // Connect to the EC2 instance using IAM role
-              withAWS(region: 'eu-west2', role: 'arn:aws:iam::350100602815:role/ECR-Jenkins') {
-              // Run the Docker Compose deployment on the EC2 instance
-              // sh 'cd /path/to/project && docker-compose pull && docker-compose up -d'
               sh "docker pull ${ECR_REGISTRY}:${IMAGE_TAG}"
-              sh "docker-compose -f ${COMPOSE_FILE} up -d"
-              }
+              sh "scp -o StrictHostKeyChecking=no ${COMPOSE_FILE} ${EC2_INSTANCE}:~/docker-compose.yml"
+              sh "ssh -o StrictHostKeyChecking=no ${EC2_INSTANCE} 'docker-compose -f ~/docker-compose.yml up -d'"
         }
       }
+      
     }
   }
 }
