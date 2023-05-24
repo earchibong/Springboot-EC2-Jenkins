@@ -1,7 +1,7 @@
 pipeline {
   environment {
     PROJECT     = 'springboot-docker'
-    ECR_REGISTRY = "350100602815.dkr.ecr.eu-west-2.amazonaws.com/ecs-local"
+    ECR_REGISTRY = "350100602815.dkr.ecr.eu-west-2.amazonaws.com/docker-local"
     IMAGE_NAME = "mongodb-springboot"
     IMAGE_TAG = "latest"
     AWS_REGION = "eu-west-2"
@@ -52,7 +52,7 @@ pipeline {
       steps {
         script {
               // Connect to the EC2 instance using IAM role
-              withAWS(region: 'eu-west2', role: 'arn:aws:iam::350100602815:instance-profile/ECR-Jenkins') {
+              withAWS(region: 'eu-west2', role: 'arn:aws:iam::350100602815:role/ECR-Jenkins') {
               // Run the Docker Compose deployment on the EC2 instance
               // sh 'cd /path/to/project && docker-compose pull && docker-compose up -d'
               sh "docker pull ${ECR_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
