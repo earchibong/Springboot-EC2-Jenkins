@@ -1,4 +1,4 @@
-## Deploy Spring Boot MongoDB Application on AWS ECS using Jenkins CI/CD
+## Deploy Spring Boot MongoDB App on AWS ECS using Jenkins CI/CD
 The idea for this project came from a freelance job request on upwork:
 
 <br>
