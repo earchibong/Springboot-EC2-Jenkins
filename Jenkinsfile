@@ -1,13 +1,13 @@
 pipeline {
   environment {
     PROJECT     = 'springboot-docker'
-    ECR_REGISTRY = "350100602815.dkr.ecr.eu-west-2.amazonaws.com/docker-local"
+    ECR_REGISTRY = "350100602815.dkr.ecr.eu-west-2.amazonaws.com/ecs-local"
     IMAGE_NAME = "mongodb-springboot"
     IMAGE_TAG = "latest"
     AWS_REGION = "eu-west-2"
     DOCKERFILE = "Dockerfile"
     MAVEN_OPTS = "-Dmaven.repo.local=$WORKSPACE/.m2"
-    COMPOSE_FILE='docker-compose.yml'
+    COMPOSE_FILE="docker-compose.yml"
   }
   
   agent any
@@ -41,7 +41,7 @@ pipeline {
         script {
               sh """aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}"""
               sh "docker build --tag ${IMAGE_NAME} --file ${DOCKERFILE} ${env.WORKSPACE}"
-              docker.withRegistry("https://${ECR_REGISTRY}") {
+              docker.withRegistry("https://350100602815.dkr.ecr.eu-west-2.amazonaws.com/ecs-local") {
                 docker.image("${IMAGE_NAME}:${IMAGE_TAG}").push()
               }
         }
