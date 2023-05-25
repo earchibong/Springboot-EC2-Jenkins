@@ -56,7 +56,7 @@ pipeline {
                sh """aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}"""
                sh "docker build --tag $IMAGE_NAME --file ${DOCKERFILE} ${env.WORKSPACE}"
                 docker.withRegistry("https://${ECR_REGISTRY}") {
-                docker.image("$IMAGE_NAME").push("$BUILD_NUMBER")
+                docker.image("$IMAGE_NAME").push()
               }
               
         }
@@ -66,7 +66,7 @@ pipeline {
     stage('Deploy to EC2') {
       steps {
         script {
-              sh "docker pull ${ECR_REGISTRY}:${prod-BUILD_NUMBER}"
+              sh "docker pull ${ECR_REGISTRY}:$IMAGE_NAME"
               sh """scp  -o StrictHostKeyChecking=no ${COMPOSE_FILE} ${EC2_INSTANCE}:~/docker-compose.yml"""
               sh """ssh  -o StrictHostKeyChecking=no ${EC2_INSTANCE} 'docker-compose -f ~/docker-compose.yml up -d'"""
         }
