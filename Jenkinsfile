@@ -4,7 +4,7 @@ pipeline {
     ECR_REGISTRY = "350100602815.dkr.ecr.eu-west-2.amazonaws.com/mongodb-springboot"
     AWS_REGION = "eu-west-2"
     DOCKERFILE = "Dockerfile"
-    //MAVEN_OPTS = "-Dmaven.repo.local=$WORKSPACE/.m2"
+    MAVEN_OPTS = "-Dmaven.repo.local=$WORKSPACE/.m2"
     COMPOSE_FILE = "docker-compose.yml"
     EC2_INSTANCE = "ec2-user@ec2-18-132-193-87.eu-west-2.compute.amazonaws.com"
   }
