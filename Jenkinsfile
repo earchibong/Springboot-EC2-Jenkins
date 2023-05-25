@@ -66,7 +66,7 @@ pipeline {
     stage('Deploy to EC2') {
       steps {
         script {  
-            sshagent (credentials: ['ec2-user-credentials']) {
+            sshagent (credentials: ['67820378-d49b-42aa-b9b3-db19916ccb23']) {
               sh "docker pull ${ECR_REGISTRY}:$VERSION"
               sh "scp  -o StrictHostKeyChecking=no ${COMPOSE_FILE} ${EC2_INSTANCE}:~/docker-compose.yml"
               sh "ssh  -o StrictHostKeyChecking=no ${EC2_INSTANCE} 'docker-compose -f ~/docker-compose.yml up -d'"
