@@ -1,6 +1,6 @@
 # CI/CD Pipeline for Springboot MongoDB APP Using Jenkins, GitHub, Amazon ECR And Docker-Compose
 
-As per the <a href="https://github.com/earchibong/springboot_project/tree/main#readme">project scope</a>, with the following steps, a springboot with mongodb embedded will be built, pushed to ECR, and deployed to EC2 using Jenkins.
+As per the <a href="https://github.com/earchibong/springboot_project/tree/main#readme">project scope</a> below, with the following steps, a springboot app with mongodb embedded will be built, pushed to ECR, and deployed to EC2 using Jenkins.
 
 
 <br>
