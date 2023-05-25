@@ -67,8 +67,8 @@ pipeline {
       steps {
         script {
               sh "docker pull ${ECR_REGISTRY}:$VERSION"
-              sh """scp  -o StrictHostKeyChecking=no ${COMPOSE_FILE} ${EC2_INSTANCE}:~/docker-compose.yml"""
-              sh """ssh  -o StrictHostKeyChecking=no ${EC2_INSTANCE} 'docker-compose -f ~/docker-compose.yml up -d'"""
+              sh """scp -i ${credentialsid:'67820378-d49b-42aa-b9b3-db19916ccb23'} -o StrictHostKeyChecking=no ${COMPOSE_FILE} ${EC2_INSTANCE}:~/docker-compose.yml"""
+              sh """ssh -i ${credentialsid:'67820378-d49b-42aa-b9b3-db19916ccb23'} -o StrictHostKeyChecking=no ${EC2_INSTANCE} 'docker-compose -f ~/docker-compose.yml up -d'"""
         }
       }
       
