@@ -12,16 +12,16 @@ As per the <a href="https://github.com/earchibong/springboot_project/tree/main#r
 <br>
 
 ## Project Steps:
-- <a href=" ">Set up an EC2 instance with Docker and Jenkins installed.</a>
-- <a href="https://github.com/earchibong/springboot_project/blob/main/documentation.md#create-an-iam-user-for-jenkins-to-access-aws-services">Create an IAM 
+- <a href="https://github.com/earchibong/springboot_project/blob/main/documentationa.md#set-up-an-ec2-instance-with-docker-and-jenkins-installed">Set up an EC2 instance with Docker and Jenkins installed.</a>
+- <a href="https://github.com/earchibong/springboot_project/blob/main/documentationa.md#create-an-iam-role-for-jenkins-to-access-aws-services">Create an IAM 
 user For Jenkins To Access AWS Services</a>
-- <a href="https://github.com/earchibong/springboot_project/blob/main/documentation.md#create-an-ecr-repository-for-docker-image">Create an ECR repository for Docker image</a>
-- <a href="https://github.com/earchibong/springboot_project/blob/main/documentation.md#clone-the-github-repository-containing-the-java-spring-boot-application">Embed MongoDB in Java Application</a>
-- <a href="https://github.com/earchibong/springboot_project/blob/main/documentation.md#create-ecs-cluster">Create ECS cluster</a>
-- <a href="https://github.com/earchibong/springboot_project/blob/main/documentation.md#create-an-ecr-repository-for-docker-image">Create ECR Repository</a>
-- <a href="https://github.com/earchibong/springboot_project/blob/main/documentation.md#configure-springboot-app-pom-file-to-embed-mongodb">Configure Springboot App for MongoDB</a>
-- <a href="https://github.com/earchibong/springboot_project/blob/main/documentation.md#create-a-dockerfile-for-the-application">Create Dockerfile For the Application</a>
-- <a href="https://github.com/earchibong/springboot_project/blob/main/documentation.md#create-a-jenkins-job-for-the-cicd-pipeline">Create Jenkins Job For CI/CD Pipeline</a>
+- <a href="https://github.com/earchibong/springboot_project/blob/main/documentationa.md#create-an-ecr-repository-for-docker-image">Create an ECR repository for Docker image</a>
+- <a href="https://github.com/earchibong/springboot_project/blob/main/documentationa.md#configure-springboot-app-pom-file-to-embed-mongodb">Embed MongoDB in Java Application</a>
+- <a href=" ">Create JAR file</a>
+- <a href="https://github.com/earchibong/springboot_project/blob/main/documentationa.md#create-a-dockerfile-for-the-application">Create Dockerfile</a>
+- <a href="https://github.com/earchibong/springboot_project/blob/main/documentationa.md#create-docker-compse-file">Create Docker-Compose File</a>
+- <a href="https://github.com/earchibong/springboot_project/blob/main/documentationa.md#create-a-jenkins-job-for-the-cicd-pipeline">Create Jenkins Job For CI/CD Pipeline</a>
+
 
 <br>
 
@@ -268,23 +268,29 @@ sudo usermod -aG docker <IAM_ROLE>
 manage-jenkins ->  manage nodes and clouds -> configure clouds -> add new a cloud -> Amazon EC2
 
 ```
-  + name: `<app server name>`
-  + amazon EC2 credentials: `select or add your IAM role`
-  + region: `<your instance region>`
-  + ec2 private key: <`select add and follow instructions`>
-   ++ Choose the appropriate "Kind" for your private key (e.g., "ssh username with private key").
-   ++ Provide a meaningful "ID" and "Description".
-   ++ username is "ec2-user" (using amazon linux instance)
-   ++ copy rsa key for ec2 and store it
-   ++ Save the credentials.
-  + test the connection
+
+<br>
+
+
+  - name: `<app server name>`
+  - amazon EC2 credentials: `select or add your IAM role`
+  - region: `<your instance region>`
+  - ec2 private key: <`select add and follow instructions`>
+    - Choose the appropriate "Kind" for your private key (e.g., "ssh username with private key").
+    - Provide a meaningful "ID" and "Description".
+    - username is "ec2-user" (using amazon linux instance)
+    - copy rsa key for ec2 and store it
+    - Save the credentials.
+    -  test the connection
 
 
 <br>
 
 <br>
 
-imge
+<img width="1385" alt="clouda" src="https://github.com/earchibong/springboot_project/assets/92983658/3a8c4ff6-b5db-4fbe-8c2c-fdfc9c5fb6f2">
+<img width="1387" alt="cloudb" src="https://github.com/earchibong/springboot_project/assets/92983658/48831397-5bae-4774-ba81-f4692685c11f">
+
 
 <br>
 
@@ -422,7 +428,7 @@ This Dockerfile uses the official `adoptopenjdk 11 image` as the base, copies th
 
 <br>
 
-## Create Docker-Compse File
+## Create Docker-Compose File
 - Create a file named `docker-compose.yml` in the project's root directory and add the following:
 ```
     
