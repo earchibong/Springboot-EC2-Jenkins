@@ -5,8 +5,9 @@ pipeline {
     AWS_REGION = "eu-west-2"
     DOCKERFILE = "Dockerfile"
     MAVEN_OPTS = "-Dmaven.repo.local=$WORKSPACE/.m2"
-    COMPOSE_FILE="docker-compose.yml"
-    EC2_INSTANCE = "ec2-user@ec2-18-169-244-56.eu-west-2.compute.amazonaws.com"
+    COMPOSE_FILE = "docker-compose.yml"
+    EC2_INSTANCE = "ec2-user@ec2-18-132-193-87.eu-west-2.compute.amazonaws.com"
+    IMAGE_TAG = "${prod-BUILD_NUMBER}"
   }
   
   agent any
@@ -56,7 +57,7 @@ pipeline {
                sh """aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}"""
                sh "docker build --tag $IMAGE_NAME --file ${DOCKERFILE} ${env.WORKSPACE}"
                 docker.withRegistry("https://${ECR_REGISTRY}") {
-                docker.image("$IMAGE_NAME").push("$BUILD_NUMBER")
+                docker.image("$IMAGE_NAME").push("$prod-BUILD_NUMBER")
               }
               
         }
@@ -66,12 +67,20 @@ pipeline {
     stage('Deploy to EC2') {
       steps {
         script {
-              sh "docker pull ${ECR_REGISTRY}:$BUILD_NUMBER"
-              sh """scp -i ${credentials '19f1df87-2d39-4d0f-b55c-f7afedf97615'} -o StrictHostKeyChecking=no ${COMPOSE_FILE} ${EC2_INSTANCE}:~/docker-compose.yml"""
-              sh """ssh -i ${credentials '19f1df87-2d39-4d0f-b55c-f7afedf97615'} -o StrictHostKeyChecking=no ${EC2_INSTANCE} 'docker-compose -f ~/docker-compose.yml up -d'"""
+              sh "docker pull ${ECR_REGISTRY}:${IMAGE_TAG}"
+              sh """scp  -o StrictHostKeyChecking=no ${COMPOSE_FILE} ${EC2_INSTANCE}:~/docker-compose.yml"""
+              sh """ssh  -o StrictHostKeyChecking=no ${EC2_INSTANCE} 'docker-compose -f ~/docker-compose.yml up -d'"""
         }
       }
       
     }
   }
+
+          post
+    {
+        always
+        {
+            sh "docker rmi -f $IMAGE_NAME "
+        }
+    }
 }
