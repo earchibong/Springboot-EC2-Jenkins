@@ -66,7 +66,7 @@ pipeline {
     stage('Deploy to EC2') {
       steps {
         script {
-              sh "docker pull ${ECR_REGISTRY}:$IMAGE_NAME"
+              sh "docker pull ${ECR_REGISTRY}:$VERSION"
               sh """scp  -o StrictHostKeyChecking=no ${COMPOSE_FILE} ${EC2_INSTANCE}:~/docker-compose.yml"""
               sh """ssh  -o StrictHostKeyChecking=no ${EC2_INSTANCE} 'docker-compose -f ~/docker-compose.yml up -d'"""
         }
