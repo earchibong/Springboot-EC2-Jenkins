@@ -56,7 +56,7 @@ pipeline {
                sh """aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}"""
                sh "docker build --tag $IMAGE_NAME --file ${DOCKERFILE} ${env.WORKSPACE}"
                 docker.withRegistry("https://${ECR_REGISTRY}") {
-                docker.image("$IMAGE_NAME").push("$prod-BUILD_NUMBER")
+                docker.image("$IMAGE_NAME").push("$BUILD_NUMBER")
               }
               
         }
