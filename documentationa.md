@@ -277,8 +277,7 @@ manage-jenkins ->  manage nodes and clouds -> configure clouds -> add new a clou
   - region: `<your instance region>`
   - ec2 private key: <`select add and follow instructions`>
     - Choose the appropriate "Kind" for your private key (e.g., "ssh username with private key").
-    - Provide a meaningful "ID" and "Description".
-    - username is "ec2-user" (using amazon linux instance)
+    - username is "ec2-user-credentials" (using amazon linux instance)
     - copy rsa key for ec2 and store it
     - Save the credentials.
     -  test the connection
