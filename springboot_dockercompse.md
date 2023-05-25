@@ -26,7 +26,8 @@ user For Jenkins To Access AWS Services</a>
 <br>
 
 ## Set up an EC2 instance with Docker and Jenkins installed.
-- ssh into AWS EC2 Server
+- spin up two AWS Servers named: `Jenkins` and `App` respectively
+- ssh into the `Jenkins` Server
 
 <br>
 
@@ -174,6 +175,7 @@ Follow instruction on jenkins management interface
 - Docker pipeline 
 - Blue ocean
 - pipeline maven integration
+- Amazon EC2
 
 ```
 
@@ -206,25 +208,7 @@ Follow instruction on jenkins management interface
 
 <br>
 
-- Create credentials to allow Jenkins to ssh into EC2
- - Create a Jenkins credential for the private key: Go to `"Manage Jenkins" > "Manage Credentials" > "Jenkins" > "Global credentials" (or "System" depending on Jenkins version) and click on "Add Credentials".`
-  + Choose the appropriate "Kind" for your private key (e.g., "ssh username with private key").
-  + Provide a meaningful "ID" and "Description".
-  + username is "ec2-user" as i', using amazon linux instance
-  + copy rsa key for ec2 and store it
-  
-  + Save the credentials.
-
 <br>
-
-<br>
-
-imge
-
-<br>
-
-<br>
-
 
 
 ## Create an IAM Role for Jenkins to access AWS services
@@ -277,19 +261,30 @@ sudo usermod -aG docker <IAM_ROLE>
 
 <br>
 
+- Configure EC2 connection in Jenkins: 
 
-- Link AWS ECR to Jenkins
- - Jenkins Dashboard > Manage Jenkins > Configure System
- - scroll to Docker section
- - Add credentials:
-   + Docker label: Docker
-   + Docker registry URL: <your ECR url>
-   + credentials: add your ECR region and AWS IAM role
-   
+```
+
+manage-jenkins ->  manage nodes and clouds -> configure clouds -> add new a cloud -> Amazon EC2
+
+```
+  + name: `<app server name>`
+  + amazon EC2 credentials: `select or add your IAM role`
+  + region: `<your instance region>`
+  + ec2 private key: <`select add and follow instructions`>
+   ++ Choose the appropriate "Kind" for your private key (e.g., "ssh username with private key").
+   ++ Provide a meaningful "ID" and "Description".
+   ++ username is "ec2-user" (using amazon linux instance)
+   ++ copy rsa key for ec2 and store it
+   ++ Save the credentials.
+  + test the connection
+
 
 <br>
-    
-<img width="1387" alt="docker" src="https://github.com/earchibong/springboot_project/assets/92983658/38f78a6e-cf16-4625-80a9-b1e6752ef3b5">
+
+<br>
+
+imge
 
 <br>
 
@@ -328,6 +323,25 @@ aws ecr create-repository --repository-name mongodb-springboot --image-scanning-
 <br>
 
 <br>
+
+- Link AWS ECR to Jenkins
+ - Jenkins Dashboard > Manage Jenkins > Configure System
+ - scroll to Docker section
+ - Add credentials:
+   + Docker label: Docker
+   + Docker registry URL: <your ECR url>
+   + credentials: add your ECR region and AWS IAM role
+   
+
+<br>
+    
+<img width="1387" alt="docker" src="https://github.com/earchibong/springboot_project/assets/92983658/38f78a6e-cf16-4625-80a9-b1e6752ef3b5">
+
+<br>
+
+<br>
+
+
 
 ## Configure Springboot App POM file to embed MongoDB
 
@@ -420,11 +434,11 @@ services:
       dockerfile: Dockerfile
       container_name: "springboot-app"
     ports:
-      - 8080:8080
+      - 5000:5000
     environment:
       - MONGO_HOST=mongodb
       - MONGO_PORT=27017
-      - MONGO_DB=springboot-db
+      - MONGO_DB=api
     depends_on:
       - mongodb
 
@@ -579,13 +593,11 @@ pipeline {
   environment {
     PROJECT     = 'mongodb-springboot'
     ECR_REGISTRY = "350100602815.dkr.ecr.eu-west-2.amazonaws.com/mongodb-springboot"
-    IMAGE_NAME = "mongodb-springboot"
-    IMAGE_TAG = "latest"
     AWS_REGION = "eu-west-2"
     DOCKERFILE = "Dockerfile"
     MAVEN_OPTS = "-Dmaven.repo.local=$WORKSPACE/.m2"
     COMPOSE_FILE='docker-compose.yml'
-    EC2_INSTANCE = 'ec2-user@ec2-instance-ip'
+    EC2_INSTANCE = '<ec2-user@ec2-instance-ip for app server>'
   }
   
   agent any
@@ -607,6 +619,21 @@ pipeline {
       }
     }
     
+    stage('Build preparations') {
+      steps {
+            script {
+                  // calculate GIT lastest commit short-hash
+                  gitCommitHash = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
+                  shortCommitHash = gitCommitHash.take(7)
+                  // calculate a sample version tag
+                  VERSION = shortCommitHash
+                  // set the build display name
+                  currentBuild.displayName = "#${BUILD_ID}-${VERSION}"
+                  IMAGE_NAME = "$PROJECT:$VERSION"
+            }
+      }
+    }   
+
     stage('Build Jar file') {
       steps {
         sh "mvn -f ${env.WORKSPACE}/pom.xml clean package -DskipTests"
@@ -620,7 +647,7 @@ pipeline {
               sh """aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}"""
               sh "docker build --tag ${IMAGE_NAME} --file ${DOCKERFILE} ${env.WORKSPACE}"
               docker.withRegistry("https://${ECR_REGISTRY}") {
-                docker.image("${IMAGE_NAME}:${IMAGE_TAG}").push()
+                docker.image("$IMAGE_NAME").push("$BUILD_NUMBER")
               }
         }
       }
@@ -630,8 +657,8 @@ pipeline {
       steps {
         script {
               sh "docker pull ${ECR_REGISTRY}:${IMAGE_TAG}"
-              sh "scp -i ${credentials('private-key-credential-id-from-jenkins')} -o StrictHostKeyChecking=no ${COMPOSE_FILE} ${EC2_INSTANCE}:~/docker-compose.yml"
-              sh "ssh -i ${credentials('private-key-credential-id-from-jenkins')} -o StrictHostKeyChecking=no ${EC2_INSTANCE} 'docker-compose -f ~/docker-compose.yml up -d'"
+              sh "scp -o StrictHostKeyChecking=no ${COMPOSE_FILE} ${EC2_INSTANCE}:~/docker-compose.yml"
+              sh "ssh -o StrictHostKeyChecking=no ${EC2_INSTANCE} 'docker-compose -f ~/docker-compose.yml up -d'"
         }
       }
     }
