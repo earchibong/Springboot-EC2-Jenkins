@@ -349,7 +349,7 @@ aws ecr create-repository --repository-name mongodb-springboot --image-scanning-
 
 
 
-## Configure Springboot App POM file to embed MongoDB
+## Configure Springboot App & Create JAR File 
 
 - clone the app repository
 ```
@@ -390,6 +390,26 @@ In this config. I have overridden the default port 8080 to 27017. Usually we put
 <br>
 
 <br>
+
+- in the root directory of the app, create `JAR` File:
+
+```
+
+mvn clean package -DskipTests
+
+```
+
+<br>
+
+<br>
+
+image
+
+<br>
+
+<br>
+
+
 
 ## Create a Dockerfile For The Application
 In the application folder, create a folder named `app` and then create a docker file and add the following to the  docker file:
