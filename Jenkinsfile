@@ -47,29 +47,15 @@ pipeline {
 
                sh "docker build --tag ${IMAGE_NAME} --file ${DOCKERFILE} ${env.WORKSPACE}"
                docker.withRegistry("https://${ECR_REGISTRY}") {
-                 //def appImage = docker.build("${imageName}", "--file ${DOCKERFILE} ${env.WORKSPACE}")
-                 //appImage.push()
                 docker.image("${IMAGE_NAME}").push() 
                 }
-
-                // Store the image tag as an environment variable for later use
-                //env.IMAGE_TAG = imageTag
-               
-               //sh """aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}"""
-               //sh "docker build --tag $IMAGE_NAME --file ${DOCKERFILE} ${env.WORKSPACE}"
-                //docker.withRegistry("https://${ECR_REGISTRY}") {
-                //docker.image("$IMAGE_NAME").push()
-              //}     
           }
       }
     }
 
     stage('Pull Docker image') {
       steps {
-        script {
-                //def imageTag = env.IMAGE_TAG
-                //def imageName = "${ECR_REGISTRY}:${imageTag}"
-      
+        script {     
                 docker.withRegistry("https://${ECR_REGISTRY}") {
                   def appImage = docker.image("${IMAGE_NAME}").pull()
                 }
@@ -82,8 +68,12 @@ pipeline {
       steps {
         script {  
             withCredentials([sshUserPrivateKey(credentialsId: '67820378-d49b-42aa-b9b3-db19916ccb23', keyFileVariable: 'SSH_PRIVATE_KEY')]) {
-              sh "scp -i ${SSH_PRIVATE_KEY} -o StrictHostKeyChecking=no ${COMPOSE_FILE} ${EC2_INSTANCE}:~/docker-compose.yml"
-              sh "ssh -i ${SSH_PRIVATE_KEY} -o StrictHostKeyChecking=no ${EC2_INSTANCE} 'docker-compose -f ~/docker-compose.yml up -d'"
+              sh """
+              scp -i \$SSH_PRIVATE_KEY -o StrictHostKeyChecking=no ${COMPOSE_FILE} ${EC2_INSTANCE}:~/docker-compose.yml
+              ssh -i \$SSH_PRIVATE_KEY -o StrictHostKeyChecking=no ${EC2_INSTANCE} 'export PATH=\$PATH:/usr/local/bin && docker-compose -f ~/docker-compose.yml up -d'
+              """
+              //sh "scp -i ${SSH_PRIVATE_KEY} -o StrictHostKeyChecking=no ${COMPOSE_FILE} ${EC2_INSTANCE}:~/docker-compose.yml"
+              //sh "ssh -i ${SSH_PRIVATE_KEY} -o StrictHostKeyChecking=no ${EC2_INSTANCE} 'docker-compose -f ~/docker-compose.yml up -d'"
             }
         }
       }
@@ -94,7 +84,7 @@ pipeline {
     {
         always
         {
-            sh "docker rmi -f $IMAGE_NAME "
+            sh "docker rmi -f ${IMAGE_NAME}"
         }
     }
 }

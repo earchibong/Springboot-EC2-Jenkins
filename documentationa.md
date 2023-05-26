@@ -39,7 +39,7 @@ user For Jenkins To Access AWS Services</a>
 
 ```
 
-sudo yum update –y
+sudo yum update
 
 ```
 
@@ -110,6 +110,9 @@ sudo wget https://github.com/docker/compose/releases/latest/download/docker-comp
 sudo mv docker-compose-$(uname -s)-$(uname -m) /usr/local/bin/docker-compose
 sudo chmod -v +x /usr/local/bin/docker-compose
 docker-compose version
+
+# note 1: install all dependencies on the Jenkins server
+# note 2: install docker and docker-compose also on the app server
 
 
 ```
