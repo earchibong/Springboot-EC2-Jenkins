@@ -69,6 +69,9 @@ pipeline {
         script {  
             withCredentials([sshUserPrivateKey(credentialsId: '67820378-d49b-42aa-b9b3-db19916ccb23', keyFileVariable: 'SSH_PRIVATE_KEY')]) {
               // credentialsid: Jenkins Credentials Id for EC2 credentials 
+              // Copy the JAR file to the workspace
+              sh "cp target/mongodb-springboot.jar ${env.WORKSPACE}"
+
               // \$SSH_PRIVATE_KEY and \$PATH instead of ${SSH_PRIVATE_KEY} and ${PATH} to access the environment variables ...
               // without Groovy String interpolation
               // added the export PATH=\$PATH:/usr/local/bin command to ensure that the docker-compose executable is ...
@@ -76,6 +79,7 @@ pipeline {
               sh """
               scp -i \$SSH_PRIVATE_KEY -o StrictHostKeyChecking=no ${COMPOSE_FILE} ${EC2_INSTANCE}:~/docker-compose.yml
               scp -i \$SSH_PRIVATE_KEY -o StrictHostKeyChecking=no ${DOCKERFILE} ${EC2_INSTANCE}:~/Dockerfile
+              scp -i \$SSH_PRIVATE_KEY -o StrictHostKeyChecking=no ${env.WORKSPACE}/mongodb-springboot.jar ${EC2_INSTANCE}:~/mongodb-springboot.jar
               ssh -i \$SSH_PRIVATE_KEY -o StrictHostKeyChecking=no ${EC2_INSTANCE} 'export PATH=\$PATH:/usr/local/bin && docker-compose -f ~/docker-compose.yml up -d'
               """
             }
