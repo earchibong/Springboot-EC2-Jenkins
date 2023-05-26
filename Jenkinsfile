@@ -44,7 +44,7 @@ pipeline {
                def imageName = "${ECR_REGISTRY}:${imageTag}"
 
                docker.withRegistry("https://${ECR_REGISTRY}") {
-                 def appImage = docker.build(imageName, "--file ${DOCKERFILE} ${env.WORKSPACE}")
+                 def appImage = docker.build(-- tag imageName, "--file ${DOCKERFILE} ${env.WORKSPACE}")
                  appImage.push()
                 }
 
