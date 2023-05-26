@@ -256,7 +256,7 @@ I already have a role `ECR-Jenkins` that was created prerviously so i'm going to
 
 sudo groupadd docker
 sudo usermod -aG docker $USER
-sudo usermod -aG docker <IAM_ROLE>
+# sudo usermod -aG docker <IAM_ROLE>
 
 ```
 
@@ -301,15 +301,6 @@ manage-jenkins ->  manage nodes and clouds -> configure clouds -> add new a clou
 
 
 ## Create an ECR repository for Docker image.
-ECR doesn't usually include image names when tagging, only the image tag like below...
-
- ```
- 
- docker push aws_account_id.dkr.ecr.us-west-2.amazonaws.com/my-repository:tag
-
- ```
-
- .... so, to make it easy tag and push in jenkinspipeline, make sure your repository name is your docker image name.
 
 ```
 
@@ -338,7 +329,7 @@ aws ecr create-repository --repository-name ecs-local --image-scanning-configura
  - Add credentials:
    + Docker label: Docker
    + Docker registry URL: <your ECR url>
-   + credentials: add your ECR region and AWS IAM role
+   + credentials: add your ECR region and AWS IAM role ARN
    
 
 <br>

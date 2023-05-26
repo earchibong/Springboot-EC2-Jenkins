@@ -3,9 +3,9 @@ pipeline {
     PROJECT     = 'mongodb-springboot'
     ECR_REGISTRY = "350100602815.dkr.ecr.eu-west-2.amazonaws.com/ecs-local"
     AWS_REGION = "eu-west-2"
-    DOCKERFILE = "Dockerfile"
+    DOCKERFILE = "./Dockerfile"
     //MAVEN_OPTS = "-Dmaven.repo.local=$WORKSPACE/.m2"
-    COMPOSE_FILE = "docker-compose.yml"
+    COMPOSE_FILE = "./docker-compose.yml"
     EC2_INSTANCE = "ec2-user@ec2-52-56-112-70.eu-west-2.compute.amazonaws.com"
     IMAGE_TAG = "mongospringboot-${env.BUILD_ID}"
     IMAGE_NAME = "${ECR_REGISTRY}:${IMAGE_TAG}"
@@ -68,12 +68,16 @@ pipeline {
       steps {
         script {  
             withCredentials([sshUserPrivateKey(credentialsId: '67820378-d49b-42aa-b9b3-db19916ccb23', keyFileVariable: 'SSH_PRIVATE_KEY')]) {
+              // credentialsid: Jenkins Credentials Id for EC2 credentials 
+              // \$SSH_PRIVATE_KEY and \$PATH instead of ${SSH_PRIVATE_KEY} and ${PATH} to access the environment variables ...
+              // without Groovy String interpolation
+              // added the export PATH=\$PATH:/usr/local/bin command to ensure that the docker-compose executable is ...
+              // included in the remote instance's PATH.
               sh """
               scp -i \$SSH_PRIVATE_KEY -o StrictHostKeyChecking=no ${COMPOSE_FILE} ${EC2_INSTANCE}:~/docker-compose.yml
+              scp -i \$SSH_PRIVATE_KEY -o StrictHostKeyChecking=no ${DOCKERFILE} ${EC2_INSTANCE}:~/Dockerfile
               ssh -i \$SSH_PRIVATE_KEY -o StrictHostKeyChecking=no ${EC2_INSTANCE} 'export PATH=\$PATH:/usr/local/bin && docker-compose -f ~/docker-compose.yml up -d'
               """
-              //sh "scp -i ${SSH_PRIVATE_KEY} -o StrictHostKeyChecking=no ${COMPOSE_FILE} ${EC2_INSTANCE}:~/docker-compose.yml"
-              //sh "ssh -i ${SSH_PRIVATE_KEY} -o StrictHostKeyChecking=no ${EC2_INSTANCE} 'docker-compose -f ~/docker-compose.yml up -d'"
             }
         }
       }
