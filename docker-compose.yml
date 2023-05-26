@@ -4,9 +4,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      container_name: "spring-boot-app"
     ports:
       - 5000:5000
+    container_name: "spring-boot-app"
     environment:
       - MONGO_HOST=mongodb
       - MONGO_PORT=27017

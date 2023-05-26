@@ -314,7 +314,7 @@ ECR doesn't usually include image names when tagging, only the image tag like be
 ```
 
 
-aws ecr create-repository --repository-name mongodb-springboot --image-scanning-configuration scanOnPush=true --region eu-west-2
+aws ecr create-repository --repository-name ecs-local --image-scanning-configuration scanOnPush=true --region eu-west-2
 
 ```
 
@@ -460,9 +460,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      container_name: "springboot-app"
     ports:
       - 5000:5000
+    container_name: "spring-boot-app"
     environment:
       - MONGO_HOST=mongodb
       - MONGO_PORT=27017
