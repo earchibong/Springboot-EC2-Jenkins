@@ -7,7 +7,7 @@ pipeline {
     //MAVEN_OPTS = "-Dmaven.repo.local=$WORKSPACE/.m2"
     COMPOSE_FILE = "docker-compose.yml"
     EC2_INSTANCE = "ec2-user@ec2-52-56-112-70.eu-west-2.compute.amazonaws.com"
-    IMAGE_TAG = "${env.BUILD_NUMBER}-${env.GIT_BRANCH}-${env.BUILD_ID}"
+    IMAGE_TAG = "mdbs-${env.BUILD_ID}"
     IMAGE_NAME = "${ECR_REGISTRY}:${IMAGE_TAG}"
   }
   
