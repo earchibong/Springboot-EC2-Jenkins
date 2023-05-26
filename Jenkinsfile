@@ -38,12 +38,12 @@ pipeline {
     stage('Build Docker image') {
       steps {
         script {
-               //sh """aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}"""
+               sh """aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}"""
                
                def imageTag = "${env.BUILD_NUMBER}-${env.GIT_BRANCH}-${env.BUILD_ID}"
                def imageName = "${ECR_REGISTRY}:${imageTag}"
 
-               docker.withRegistry("https://${ECR_REGISTRY}", 'c70c865e-ffbe-4d45-94f4-0e443d88cdec') {
+               docker.withRegistry("https://${ECR_REGISTRY}", 'be528753-f3b5-4a0b-af49-7ff229fff5d1') {
                  def appImage = docker.build("imageName", "--file ${DOCKERFILE} ${env.WORKSPACE}")
                  appImage.push()
                 }
@@ -66,7 +66,7 @@ pipeline {
                 def imageTag = env.IMAGE_TAG
                 def imageName = "${ECR_REGISTRY}:${imageTag}"
       
-                docker.withRegistry("https://${ECR_REGISTRY}", 'c70c865e-ffbe-4d45-94f4-0e443d88cdec') {
+                docker.withRegistry("https://${ECR_REGISTRY}", 'be528753-f3b5-4a0b-af49-7ff229fff5d1') {
                   def appImage = docker.image(imageName).pull()
                 }
         }
