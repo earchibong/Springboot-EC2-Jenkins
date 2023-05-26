@@ -7,6 +7,8 @@ pipeline {
     //MAVEN_OPTS = "-Dmaven.repo.local=$WORKSPACE/.m2"
     COMPOSE_FILE = "docker-compose.yml"
     EC2_INSTANCE = "ec2-user@ec2-52-56-112-70.eu-west-2.compute.amazonaws.com"
+    IMAGE_TAG = "${env.BUILD_NUMBER}-${env.GIT_BRANCH}-${env.BUILD_ID}"
+    IMAGE_NAME = "${ECR_REGISTRY}:${IMAGE_TAG}"
   }
   
   agent any
@@ -40,18 +42,18 @@ pipeline {
         script {
                sh """aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}"""
                
-               def imageTag = "${env.BUILD_NUMBER}-${env.GIT_BRANCH}-${env.BUILD_ID}"
-               def imageName = "${ECR_REGISTRY}:${imageTag}"
+               //def imageTag = "${env.BUILD_NUMBER}-${env.GIT_BRANCH}-${env.BUILD_ID}"
+               //def imageName = "${ECR_REGISTRY}:${imageTag}"
 
-               sh "docker build --tag ${imageNAME} --file ${DOCKERFILE} ${env.WORKSPACE}"
+               sh "docker build --tag ${IMAGE_NAME} --file ${DOCKERFILE} ${env.WORKSPACE}"
                docker.withRegistry("https://${ECR_REGISTRY}") {
                  //def appImage = docker.build("${imageName}", "--file ${DOCKERFILE} ${env.WORKSPACE}")
                  //appImage.push()
-                docker.image("${imageNAME}").push() 
+                docker.image("${IMAGE_NAME}").push() 
                 }
 
                 // Store the image tag as an environment variable for later use
-                env.IMAGE_TAG = imageTag
+                //env.IMAGE_TAG = imageTag
                
                //sh """aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}"""
                //sh "docker build --tag $IMAGE_NAME --file ${DOCKERFILE} ${env.WORKSPACE}"
@@ -65,11 +67,11 @@ pipeline {
     stage('Pull Docker image') {
       steps {
         script {
-                def imageTag = env.IMAGE_TAG
-                def imageName = "${ECR_REGISTRY}:${imageTag}"
+                //def imageTag = env.IMAGE_TAG
+                //def imageName = "${ECR_REGISTRY}:${imageTag}"
       
                 docker.withRegistry("https://${ECR_REGISTRY}") {
-                  def appImage = docker.image(imageName).pull()
+                  def appImage = docker.image("${IMAGE_NAME}").pull()
                 }
         }
       }
