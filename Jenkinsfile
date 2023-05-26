@@ -43,7 +43,7 @@ pipeline {
                def imageTag = "${env.BUILD_NUMBER}-${env.GIT_BRANCH}-${env.BUILD_ID}"
                def imageName = "${ECR_REGISTRY}:${imageTag}"
 
-               docker.withRegistry("https://${ECR_REGISTRY}", 'be528753-f3b5-4a0b-af49-7ff229fff5d1') {
+               docker.withRegistry("https://${ECR_REGISTRY}") {
                  def appImage = docker.build("imageName", "--file ${DOCKERFILE} ${env.WORKSPACE}")
                  appImage.push()
                 }
@@ -66,7 +66,7 @@ pipeline {
                 def imageTag = env.IMAGE_TAG
                 def imageName = "${ECR_REGISTRY}:${imageTag}"
       
-                docker.withRegistry("https://${ECR_REGISTRY}", 'be528753-f3b5-4a0b-af49-7ff229fff5d1') {
+                docker.withRegistry("https://${ECR_REGISTRY}") {
                   def appImage = docker.image(imageName).pull()
                 }
         }
