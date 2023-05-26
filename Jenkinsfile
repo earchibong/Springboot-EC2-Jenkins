@@ -43,9 +43,11 @@ pipeline {
                def imageTag = "${env.BUILD_NUMBER}-${env.GIT_BRANCH}-${env.BUILD_ID}"
                def imageName = "${ECR_REGISTRY}:${imageTag}"
 
+               sh "docker build --tag ${imageNAME} --file ${DOCKERFILE} ${env.WORKSPACE}"
                docker.withRegistry("https://${ECR_REGISTRY}") {
-                 def appImage = docker.build("${imageName}", "--file ${DOCKERFILE} ${env.WORKSPACE}")
-                 appImage.push()
+                 //def appImage = docker.build("${imageName}", "--file ${DOCKERFILE} ${env.WORKSPACE}")
+                 //appImage.push()
+                docker.image("${imageNAME}").push() 
                 }
 
                 // Store the image tag as an environment variable for later use
