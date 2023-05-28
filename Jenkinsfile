@@ -40,13 +40,13 @@ pipeline {
     stage('Build Docker image') {
       steps {
         script {
-               //sh """aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}"""
+               sh """aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}"""
                
                //def imageTag = "${env.BUILD_NUMBER}-${env.GIT_BRANCH}-${env.BUILD_ID}"
                //def imageName = "${ECR_REGISTRY}:${imageTag}"
 
                sh "docker build --tag ${IMAGE_NAME} --file ${DOCKERFILE} ${env.WORKSPACE}"
-               docker.withRegistry("https://${ECR_REGISTRY}", 'ecr:${AWS_REGION}:aws-credentials') {
+               docker.withRegistry("https://${ECR_REGISTRY}") {
                 docker.image("${IMAGE_NAME}").push() 
                 }
           }
