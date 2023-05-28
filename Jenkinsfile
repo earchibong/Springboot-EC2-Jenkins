@@ -5,7 +5,7 @@ pipeline {
     AWS_REGION = "eu-west-2"
     DOCKERFILE = "./Dockerfile"
     //MAVEN_OPTS = "-Dmaven.repo.local=$WORKSPACE/.m2"
-    COMPOSE_FILE = "./docker-compose.yml"
+    COMPOSE_FILE = "./docker-compose.yml.template"
     EC2_INSTANCE = "ec2-user@ec2-13-40-46-25.eu-west-2.compute.amazonaws.com"
     IMAGE_TAG = "mongospringboot-${env.BUILD_ID}"
     IMAGE_NAME = "${ECR_REGISTRY}:${IMAGE_TAG}"
@@ -69,7 +69,7 @@ pipeline {
         script {  
             withCredentials([
               sshUserPrivateKey(credentialsId: '67820378-d49b-42aa-b9b3-db19916ccb23', keyFileVariable: 'SSH_PRIVATE_KEY')]) {
-              amazonWebServicesCredentials(credentialsId: 'be528753-f3b5-4a0b-af49-7ff229fff5d1', accessKeyVariable: 'AWS_ACCESS_KEY', secretKeyVariable: 'AWS_SECRET_KEY')
+              //amazonWebServicesCredentials(credentialsId: 'be528753-f3b5-4a0b-af49-7ff229fff5d1', accessKeyVariable: 'AWS_ACCESS_KEY', secretKeyVariable: 'AWS_SECRET_KEY')
               // credentialsid: Jenkins Credentials Id for EC2 credentials
               // using `\$SSH_PRIVATE_KEY` and `\$PATH` instead of `${SSH_PRIVATE_KEY}` and `${PATH}` to access the environment variables ...
               // ...without Groovy String interpolation
@@ -77,15 +77,15 @@ pipeline {
               // ...included in the remote instance's PATH.
               
               // save and transferthe built Docker image (in the form of a tarball) to the EC2 instance
-              sh """
-              docker save ${IMAGE_NAME} | gzip > ${env.WORKSPACE}/app-image.tar.gz
-              scp -i \$SSH_PRIVATE_KEY -o StrictHostKeyChecking=no ${env.WORKSPACE}/app-image.tar.gz ${EC2_INSTANCE}:~/app-image.tar.gz
-              """
+              //sh """
+              //docker save ${IMAGE_NAME} | gzip > ${env.WORKSPACE}/app-image.tar.gz
+              //scp -i \$SSH_PRIVATE_KEY -o StrictHostKeyChecking=no ${env.WORKSPACE}/app-image.tar.gz ${EC2_INSTANCE}:~/app-image.tar.gz
+              //"""
 
               // Deploy the Docker image on the EC2 instance
               sh """
               ssh -i \$SSH_PRIVATE_KEY -o StrictHostKeyChecking=no ${EC2_INSTANCE} 'export PATH=\$PATH:/usr/local/bin && aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}'
-              scp -i \$SSH_PRIVATE_KEY -o StrictHostKeyChecking=no ${COMPOSE_FILE} ${EC2_INSTANCE}:~/docker-compose.yml
+              sed 's|{{IMAGE_NAME}}|${IMAGE_NAME}|g' docker-compose.yml.template > docker-compose.yml
               ssh -i \$SSH_PRIVATE_KEY -o StrictHostKeyChecking=no ${EC2_INSTANCE} 'export PATH=\$PATH:/usr/local/bin && IMAGE_NAME=${IMAGE_NAME} docker-compose -f ~/docker-compose.yml up -d'
               
               """
