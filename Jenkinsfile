@@ -4,9 +4,9 @@ pipeline {
     ECR_REGISTRY = "350100602815.dkr.ecr.eu-west-2.amazonaws.com/ecs-local"
     AWS_REGION = "eu-west-2"
     DOCKERFILE = "./Dockerfile"
-    MAVEN_OPTS = "-Dmaven.repo.local=$WORKSPACE/.m2"
+    //MAVEN_OPTS = "-Dmaven.repo.local=$WORKSPACE/.m2"
     COMPOSE_FILE = "./docker-compose.yml"
-    EC2_INSTANCE = "ec2-user@ec2-52-56-112-70.eu-west-2.compute.amazonaws.com"
+    EC2_INSTANCE = "ec2-user@ec2-13-40-46-25.eu-west-2.compute.amazonaws.com"
     IMAGE_TAG = "mongospringboot-${env.BUILD_ID}"
     IMAGE_NAME = "${ECR_REGISTRY}:${IMAGE_TAG}"
   }
@@ -30,12 +30,12 @@ pipeline {
       }
     }  
     
-    stage('Build Jar file') {
-      steps {
-        sh "mvn -f ${env.WORKSPACE}/pom.xml clean package -DskipTests"
-        archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
-      }
-    }
+    //stage('Build Jar file') {
+      //steps {
+        //sh "mvn -f ${env.WORKSPACE}/pom.xml clean package -DskipTests"
+        //archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+      //}
+    //}
     
     stage('Build Docker image') {
       steps {
@@ -53,31 +53,44 @@ pipeline {
       }
     }
 
-    stage('Pull Docker image') {
-      steps {
-        script {     
-                docker.withRegistry("https://${ECR_REGISTRY}") {
-                  def appImage = docker.image("${IMAGE_NAME}").pull()
-                }
-        }
-      }
-    }
+    //stage('Pull Docker image') {
+      //steps {
+        //script {     
+                //docker.withRegistry("https://${ECR_REGISTRY}") {
+                  //def appImage = docker.image("${IMAGE_NAME}").pull()
+                //}
+        //}
+      //}
+    //}
 
     
     stage('Deploy to EC2') {
       steps {
         script {  
             withCredentials([sshUserPrivateKey(credentialsId: '67820378-d49b-42aa-b9b3-db19916ccb23', keyFileVariable: 'SSH_PRIVATE_KEY')]) {
-              // credentialsid: Jenkins Credentials Id for EC2 credentials 
-              // \$SSH_PRIVATE_KEY and \$PATH instead of ${SSH_PRIVATE_KEY} and ${PATH} to access the environment variables ...
-              // without Groovy String interpolation
-              // added the export PATH=\$PATH:/usr/local/bin command to ensure that the docker-compose executable is ...
-              // included in the remote instance's PATH.
+              // credentialsid: Jenkins Credentials Id for EC2 credentials
+              // using `\$SSH_PRIVATE_KEY` and `\$PATH` instead of `${SSH_PRIVATE_KEY}` and `${PATH}` to access the environment variables ...
+              // ...without Groovy String interpolation
+              // added the `export PATH=\$PATH:/usr/local/bin` command to ensure that the docker-compose executable is ...
+              // ...included in the remote instance's PATH.
+              
+              // Transfer the built Docker image (in the form of a tarball) to the EC2 instance
+              sh """
+              docker save ${IMAGE_NAME} | gzip > ${env.WORKSPACE}/app-image.tar.gz
+              scp -i \$SSH_PRIVATE_KEY -o StrictHostKeyChecking=no ${env.WORKSPACE}/app-image.tar.gz ${EC2_INSTANCE}:~/app-image.tar.gz
+              """
+
+              // Deploy the Docker image on the EC2 instance
               sh """
               scp -i \$SSH_PRIVATE_KEY -o StrictHostKeyChecking=no ${COMPOSE_FILE} ${EC2_INSTANCE}:~/docker-compose.yml
-              scp -i \$SSH_PRIVATE_KEY -o StrictHostKeyChecking=no ${DOCKERFILE} ${EC2_INSTANCE}:~/Dockerfile
-              ssh -i \$SSH_PRIVATE_KEY -o StrictHostKeyChecking=no ${EC2_INSTANCE} 'export PATH=\$PATH:/usr/local/bin && docker-compose -f ~/docker-compose.yml up -d'
+              ssh -i \$SSH_PRIVATE_KEY -o StrictHostKeyChecking=no ${EC2_INSTANCE} 'export PATH=\$PATH:/usr/local/bin && docker load < ~/app-image.tar.gz && docker-compose -f ~/docker-compose.yml up -d'
               """
+              
+              //sh """
+              //scp -i \$SSH_PRIVATE_KEY -o StrictHostKeyChecking=no ${COMPOSE_FILE} ${EC2_INSTANCE}:~/docker-compose.yml
+              //scp -i \$SSH_PRIVATE_KEY -o StrictHostKeyChecking=no ${DOCKERFILE} ${EC2_INSTANCE}:~/Dockerfile
+              //ssh -i \$SSH_PRIVATE_KEY -o StrictHostKeyChecking=no ${EC2_INSTANCE} 'export PATH=\$PATH:/usr/local/bin && docker-compose -f ~/docker-compose.yml up -d'
+              //"""
             }
         }
       }
