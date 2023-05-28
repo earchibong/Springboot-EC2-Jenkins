@@ -448,7 +448,7 @@ This Dockerfile uses the official `adoptopenjdk 11 image` as the base, copies th
 version: '3'
 services:
   app:
-    image: app-image.tar.gz
+    image: ${IMAGE_NAME}
     ports:
       - 5000:5000
     container_name: "spring-boot-app"
@@ -471,7 +471,7 @@ services:
 
 <br>
 
-*note: in the app section, we will be using a docker image `app-image.tar.gz`, so we don't need a `build` section. Instead, once the image is built in the jenkinspipeline, it will be transferred to the EC2 instance and deployed as the mongodb database.
+*note: in the app section, we will be using a docker image with a placeholder `${IMAGE_NAME}` that is defined in the jenkinsfile, so we don't need a `build` section. Instead, once the image is built in the jenkinspipeline, it will be pulled from `ECR` to the EC2 instance via the docker-compose file and deployed as the mongodb database.
 
 
 <br>

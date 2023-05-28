@@ -1,7 +1,7 @@
 version: '3'
 services:
   app:
-    image: app-image.tar.gz
+    image: ${IMAGE_NAME}
     ports:
       - 5000:5000
     container_name: "spring-boot-app"
