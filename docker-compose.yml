@@ -1,9 +1,7 @@
 version: '3'
 services:
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: app-image.tar.gz
     ports:
       - 5000:5000
     container_name: "spring-boot-app"

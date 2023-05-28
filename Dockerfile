@@ -15,7 +15,7 @@ FROM adoptopenjdk:11-jre-hotspot
 WORKDIR /app
 
 # Copy the executable JAR file to the container
-COPY ./target/mongodb-springboot.jar app.jar
+COPY target/mongodb-springboot.jar app.jar
 
 # Expose the port on which your Spring Boot application listens
 EXPOSE 8080
