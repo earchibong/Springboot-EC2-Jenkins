@@ -68,8 +68,8 @@ pipeline {
       steps {
         script {  
             withCredentials([
-              sshUserPrivateKey(credentialsId: '67820378-d49b-42aa-b9b3-db19916ccb23', keyFileVariable: 'SSH_PRIVATE_KEY'),
-              amazonWebServicesCredentials(credentialsId: 'c70c865e-ffbe-4d45-94f4-0e443d88cdec', accessKeyVariable: 'AWS_ACCESS_KEY', secretKeyVariable: 'AWS_SECRET_KEY')]) {
+              sshUserPrivateKey(credentialsId: '67820378-d49b-42aa-b9b3-db19916ccb23', keyFileVariable: 'SSH_PRIVATE_KEY')]) {
+              //amazonWebServicesCredentials(credentialsId: 'c70c865e-ffbe-4d45-94f4-0e443d88cdec', accessKeyVariable: 'AWS_ACCESS_KEY', secretKeyVariable: 'AWS_SECRET_KEY')
               // credentialsid: Jenkins Credentials Id for EC2 credentials
               // using `\$SSH_PRIVATE_KEY` and `\$PATH` instead of `${SSH_PRIVATE_KEY}` and `${PATH}` to access the environment variables ...
               // ...without Groovy String interpolation
