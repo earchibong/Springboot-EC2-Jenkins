@@ -77,10 +77,10 @@ pipeline {
               // ...included in the remote instance's PATH.
               
               // save and transferthe built Docker image (in the form of a tarball) to the EC2 instance
-              //sh """
-              //docker save ${IMAGE_NAME} | gzip > ${env.WORKSPACE}/app-image.tar.gz
-              //scp -i \$SSH_PRIVATE_KEY -o StrictHostKeyChecking=no ${env.WORKSPACE}/app-image.tar.gz ${EC2_INSTANCE}:~/app-image.tar.gz
-              //"""
+              sh """
+              docker save ${IMAGE_NAME} | gzip > ${env.WORKSPACE}/app-image.tar.gz
+              scp -i \$SSH_PRIVATE_KEY -o StrictHostKeyChecking=no ${env.WORKSPACE}/app-image.tar.gz ${EC2_INSTANCE}:~/app-image.tar.gz
+              """
 
               // Deploy the Docker image on the EC2 instance
               sh """
