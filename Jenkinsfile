@@ -6,7 +6,7 @@ pipeline {
     DOCKERFILE = "./Dockerfile"
     //MAVEN_OPTS = "-Dmaven.repo.local=$WORKSPACE/.m2"
     COMPOSE_FILE = "./docker-compose.yml.template"
-    EC2_INSTANCE = "ec2-user@ec2-13-40-46-25.eu-west-2.compute.amazonaws.com"
+    EC2_INSTANCE = "ec2-user@ec2-18-130-4-172.eu-west-2.compute.amazonaws.com"
     IMAGE_TAG = "mongospringboot-${env.BUILD_ID}"
     IMAGE_NAME = "${ECR_REGISTRY}:${IMAGE_TAG}"
   }
@@ -52,17 +52,6 @@ pipeline {
           }
       }
     }
-
-    //stage('Pull Docker image') {
-      //steps {
-        //script {     
-                //docker.withRegistry("https://${ECR_REGISTRY}") {
-                  //def appImage = docker.image("${IMAGE_NAME}").pull()
-                //}
-        //}
-      //}
-    //}
-
     
     stage('Deploy to EC2') {
       steps {
@@ -84,9 +73,10 @@ pipeline {
 
               // Deploy the Docker image on the EC2 instance
               sh """
-              aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}
-              scp -i \$SSH_PRIVATE_KEY -o StrictHostKeyChecking=no ${COMPOSE_FILE} ${EC2_INSTANCE}:~/docker-compose.yml.template
-              ssh -i \$SSH_PRIVATE_KEY -o StrictHostKeyChecking=no ${EC2_INSTANCE} 'mv ~/docker-compose.yml.template ~/docker-compose.yml'
+
+              ssh -i \$SSH_PRIVATE_KEY -o StrictHostKeyChecking=no ${EC2_INSTANCE} 'export PATH=\$PATH:/usr/local/bin && $(aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY})'
+              scp -i \$SSH_PRIVATE_KEY -o StrictHostKeyChecking=no ${COMPOSE_FILE} ${EC2_INSTANCE}:~/docker-compose.yml
+              
               ssh -i \$SSH_PRIVATE_KEY -o StrictHostKeyChecking=no ${EC2_INSTANCE} 'export PATH=\$PATH:/usr/local/bin && sed -i "s|{{IMAGE_NAME}}|${IMAGE_NAME}|g" ~/docker-compose.yml'
               ssh -i \$SSH_PRIVATE_KEY -o StrictHostKeyChecking=no ${EC2_INSTANCE} 'export PATH=\$PATH:/usr/local/bin && IMAGE_NAME=${IMAGE_NAME} docker-compose -f ~/docker-compose.yml up -d'
               
@@ -96,6 +86,7 @@ pipeline {
               //scp -i \$SSH_PRIVATE_KEY -o StrictHostKeyChecking=no ${COMPOSE_FILE} ${EC2_INSTANCE}:~/docker-compose.yml
               //scp -i \$SSH_PRIVATE_KEY -o StrictHostKeyChecking=no ${DOCKERFILE} ${EC2_INSTANCE}:~/Dockerfile
               //ssh -i \$SSH_PRIVATE_KEY -o StrictHostKeyChecking=no ${EC2_INSTANCE} 'export PATH=\$PATH:/usr/local/bin && docker-compose -f ~/docker-compose.yml up -d'
+              //ssh -i \$SSH_PRIVATE_KEY -o StrictHostKeyChecking=no ${EC2_INSTANCE} 'mv ~/docker-compose.yml.template ~/docker-compose.yml'
               //"""
             }
         }
