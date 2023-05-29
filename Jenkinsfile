@@ -40,19 +40,28 @@ pipeline {
     stage('Build Docker image') {
       steps {
         script {
-               sh """aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}"""
+               withCredentials([
+                [
+                  $class: 'AmazonWebServicesCredentialsBinding',
+                  accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                  secretKeyVariable: 'AWS_SECRET_ACCESS_KEY',
+                  credentialsId: 'be528753-f3b5-4a0b-af49-7ff229fff5d1'
+                ]
+              ]) {
                
-               //def imageTag = "${env.BUILD_NUMBER}-${env.GIT_BRANCH}-${env.BUILD_ID}"
-               //def imageName = "${ECR_REGISTRY}:${imageTag}"
+               sh """
+               aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}
+               docker build --tag ${IMAGE_NAME} --file ${DOCKERFILE} ${env.WORKSPACE}
+               """
 
-               sh "docker build --tag ${IMAGE_NAME} --file ${DOCKERFILE} ${env.WORKSPACE}"
-               docker.withRegistry("https://${ECR_REGISTRY}") {
+               docker.withRegistry("https://${ECR_REGISTRY}", "${AWS_REGION}") {
                 docker.image("${IMAGE_NAME}").push() 
                 }
-          }
+              }
+        }
       }
     }
-    
+
     stage('Deploy to EC2') {
       steps {
         script {  
@@ -65,19 +74,9 @@ pipeline {
                   credentialsId: 'be528753-f3b5-4a0b-af49-7ff229fff5d1'
                 ]
               ]) {
-              //amazonWebServicesCredentials(credentialsId: 'be528753-f3b5-4a0b-af49-7ff229fff5d1', accessKeyVariable: 'AWS_ACCESS_KEY', secretKeyVariable: 'AWS_SECRET_KEY')
-              // credentialsid: Jenkins Credentials Id for EC2 credentials
-              // using `\$SSH_PRIVATE_KEY` and `\$PATH` instead of `${SSH_PRIVATE_KEY}` and `${PATH}` to access the environment variables ...
-              // ...without Groovy String interpolation
-              // added the `export PATH=\$PATH:/usr/local/bin` command to ensure that the docker-compose executable is ...
-              // ...included in the remote instance's PATH.
               
-              // save and transferthe built Docker image (in the form of a tarball) to the EC2 instance
-              //sh """
-              //docker save ${IMAGE_NAME} | gzip > ${env.WORKSPACE}/app-image.tar.gz
-              //scp -i \$SSH_PRIVATE_KEY -o StrictHostKeyChecking=no ${env.WORKSPACE}/app-image.tar.gz ${EC2_INSTANCE}:~/app-image.tar.gz
-              //"""
-
+              // using `\$SSH_PRIVATE_KEY` and `\$PATH` instead of `${SSH_PRIVATE_KEY}` and `${PATH}` to access the environment variables without Groovy String interpolation
+              // added the `export PATH=\$PATH:/usr/local/bin` command to ensure that the docker-compose executable is included in the remote instance's PATH.
               // Deploy the Docker image on the EC2 instance
               sh """
 
@@ -88,13 +87,7 @@ pipeline {
               ssh -i \$SSH_PRIVATE_KEY -o StrictHostKeyChecking=no ${EC2_INSTANCE} 'export PATH=\$PATH:/usr/local/bin && IMAGE_NAME=${IMAGE_NAME} docker-compose -f ~/docker-compose.yml up -d'
               
               """
-              
-              //sh """
-              //scp -i \$SSH_PRIVATE_KEY -o StrictHostKeyChecking=no ${COMPOSE_FILE} ${EC2_INSTANCE}:~/docker-compose.yml
-              //scp -i \$SSH_PRIVATE_KEY -o StrictHostKeyChecking=no ${DOCKERFILE} ${EC2_INSTANCE}:~/Dockerfile
-              //ssh -i \$SSH_PRIVATE_KEY -o StrictHostKeyChecking=no ${EC2_INSTANCE} 'export PATH=\$PATH:/usr/local/bin && docker-compose -f ~/docker-compose.yml up -d'
-              //ssh -i \$SSH_PRIVATE_KEY -o StrictHostKeyChecking=no ${EC2_INSTANCE} 'mv ~/docker-compose.yml.template ~/docker-compose.yml'
-              //"""
+
             }
         }
       }
