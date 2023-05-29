@@ -616,10 +616,9 @@ sudo chmod 666 /var/run/docker.sock
 
 Here's an overview of the steps that will be included in the job:
 - Check out the source code from the GitHub repository.
-- Build the Spring Boot app with Maven or Gradle.
 - Build the Docker image and tag it with the ECR repository URL.
 - Push the Docker image to the ECR repository.
-- Deploy the Docker image to ECS using a task definition and a service.
+- Deploy the Docker image to EC2 using docker-compose.
     
 
 <br>
@@ -746,7 +745,19 @@ pipeline {
 
 <br>
 
+<img width="1387" alt="jenkins_pipeline_deploy" src="https://github.com/earchibong/springboot_project/assets/92983658/9c55cd20-89a4-478d-8c69-e889b5722e71">
 
+<br>
+    
+<img width="1389" alt="app_5000" src="https://github.com/earchibong/springboot_project/assets/92983658/87768df9-7e4d-4277-a74e-9050a4e82465">
 
+<br>
+    
+    
+And that's it! We have successfully deployed a Spring Boot application into Docker connected with MongoDB! 
+To take this further, if there is a need for scalability, high availability, automatic scaling, and SSL termination, a Load Balancer can be deployed and attached to the instance otherwise, an elastic ip can be associated to the instance and an `A` record, created to mapp a domain to the ip.
 
-## 
+<br>
+    
+    
+
