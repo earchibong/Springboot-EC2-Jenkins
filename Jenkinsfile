@@ -57,7 +57,8 @@ pipeline {
       steps {
         script {  
             withCredentials([
-              sshUserPrivateKey(credentialsId: '67820378-d49b-42aa-b9b3-db19916ccb23', keyFileVariable: 'SSH_PRIVATE_KEY')]) {
+              sshUserPrivateKey(credentialsId: '67820378-d49b-42aa-b9b3-db19916ccb23', keyFileVariable: 'SSH_PRIVATE_KEY'),  
+              <object of type com.cloudbees.jenkins.plugins.awscredentials.AmazonWebServicesCredentialsBinding>]) {
               //amazonWebServicesCredentials(credentialsId: 'be528753-f3b5-4a0b-af49-7ff229fff5d1', accessKeyVariable: 'AWS_ACCESS_KEY', secretKeyVariable: 'AWS_SECRET_KEY')
               // credentialsid: Jenkins Credentials Id for EC2 credentials
               // using `\$SSH_PRIVATE_KEY` and `\$PATH` instead of `${SSH_PRIVATE_KEY}` and `${PATH}` to access the environment variables ...
@@ -74,11 +75,7 @@ pipeline {
               // Deploy the Docker image on the EC2 instance
               sh """
 
-              ssh -i \$SSH_PRIVATE_KEY -o StrictHostKeyChecking=no ${EC2_INSTANCE} <<EOF
-              export PATH=\$PATH:/usr/local/bin
-              \$(aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY})
-              EOF
-              
+              ssh -i \$SSH_PRIVATE_KEY -o StrictHostKeyChecking=no ${EC2_INSTANCE} 'export PATH=\$PATH:/usr/local/bin && aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}'
               scp -i \$SSH_PRIVATE_KEY -o StrictHostKeyChecking=no ${COMPOSE_FILE} ${EC2_INSTANCE}:~/docker-compose.yml.template
               ssh -i \$SSH_PRIVATE_KEY -o StrictHostKeyChecking=no ${EC2_INSTANCE} 'mv ~/docker-compose.yml.template ~/docker-compose.yml'
               ssh -i \$SSH_PRIVATE_KEY -o StrictHostKeyChecking=no ${EC2_INSTANCE} 'export PATH=\$PATH:/usr/local/bin && sed -i "s|{{IMAGE_NAME}}|${IMAGE_NAME}|g" ~/docker-compose.yml'
