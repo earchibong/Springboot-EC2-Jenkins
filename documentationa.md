@@ -472,7 +472,7 @@ services:
     
 <br>
     
-<img width="822" alt="docker_compose" src="https://github.com/earchibong/springboot_project/assets/92983658/7e685490-a6c7-4140-be35-17190dfc1aec">
+<img width="769" alt="compose" src="https://github.com/earchibong/springboot_project/assets/92983658/551a5bea-d478-4267-9c7b-1a9b64c5da95">
 
 <br>
     
