@@ -7,7 +7,7 @@ The idea for this project came from a freelance job request on upwork:
 
 <br>
 
-**Access full documentation for the Jenkins / Docker Compose project option <a href="https://github.com/earchibong/springboot_project/blob/main/documentationa.md">here</a>**
+**Access the** <a href="https://github.com/earchibong/springboot_project/blob/main/documentationa.md">**full documentation for the Jenkins / Docker Compose project**</a>
 
 <br>
 

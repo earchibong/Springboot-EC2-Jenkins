@@ -751,8 +751,123 @@ pipeline {
 <br>
     
     
-And that's it! We have successfully deployed a Spring Boot application into Docker connected with MongoDB! 
-To take this further, if there is a need for scalability, high availability, automatic scaling, and SSL termination, a Load Balancer can be deployed and attached to the instance otherwise, an elastic ip can be associated to the instance and an `A` record, created to mapp a domain to the ip.
+## Create Load Balancer With NginX And SSL/TLS Encryption
+    
+- spin up an EC2 instance and name it `nginx lb`
+- open `TCP port 80` for HTTP connections, also open `TCP port 443` for HTTPS 
+
+### Configure NginX Server as a Load Balancer
+
+- SSH into EC2 instance
+- configure DNS records
+    - in AWS Route 53, select your hosted zone and domain
+    - create an `A` record
+    - insert `nginx_lb` ip address as the value
+    - create another A record:
+    - Enter www in the record name for record type and value enter the same information as above .
+    
+<br>
+    
+- Update the instance and Install and enable Nginx at boot:
+```
+    
+ sudo dnf update -y
+ sudo dnf install nginx -y
+ sudo systemctl start nginx
+ sudo systemctl status nginx
+ sudo systemctl enable nginx
+    
+```
+<br>
+    
+<br>
+    
+<img width="1384" alt="nginx" src="https://github.com/earchibong/springboot_project/assets/92983658/f077346e-918e-4a41-b9c8-e8bdeea626a9">
+
+ <br>
+    
+ - Update /etc/hosts file for local DNS with Web Servers’ names and their local IP addresses
+```
+    
+
+#Open this file on the LB server
+
+sudo nano /etc/hosts
+
+#Add 2 records into this file with Local IP address and arbitrary name for both of your Web Servers
+
+<app-Private-IP-Address> Web1
+<WebServer2-Private-IP-Address> Web2
+
+    
+```
+    
+<br>
+    
+<img width="1180" alt="etc" src="https://github.com/earchibong/springboot_project/assets/92983658/c5eecef1-c485-4429-bccd-fad1410131ac">
+
+<br>
+    
+<br>
+    
+- Setup Server Block For Nginx
+```
+    
+sudo nano /etc/nginx/nginx.conf
+
+# update NginX Load Balancer config file with Web Servers’ names defined in /etc/hosts
+#insert following configuration into http section
+
+ upstream myproject {
+    server Web1 weight=5;
+    server Web2 weight=5;
+  }
+
+server {
+    listen 80;
+    server_name www.your_new_domain.com;
+    location / {
+      proxy_pass http://myproject;
+    }
+  }
+
+# ensure Settings for a TLS enabled server is enabled as well
+
+    
+```
+    
+<br>
+    
+<br>
+ 
+<img width="1144" alt="etc" src="https://github.com/earchibong/springboot_project/assets/92983658/fae64db7-4851-4772-a70f-352b420aed92">
+
+    
+<br>
+    
+<br>
+    
+### SSL Setup
+    
+```
+    
+sudo dnf install python3 augeas-libs
+sudo python3 -m venv /opt/certbot/
+sudo /opt/certbot/bin/pip install --upgrade pip
+sudo /opt/certbot/bin/pip install certbot certbot-nginx
+    
+sudo ln -s /opt/certbot/bin/certbot /usr/bin/certbot
+sudo certbot --nginx
+    
+    
+```
+    
+<br>
+    
+
+    And that's it! We have successfully deployed a Spring Boot application into Docker connected with MongoDB! 
+To take this further, if there is a need![Uploading nginx_Server.png…]()
+ for scalability, high availability, automatic scaling, and SSL termination, a Load Balancer can be deployed and attached to the instance otherwise, an elastic ip can be associated to the instance and an `A` record, created to mapp a domain to the ip.
 
 <br>
     
