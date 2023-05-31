@@ -5,10 +5,6 @@ As per the <a href="https://github.com/earchibong/springboot_project/tree/main#r
 
 <br>
 
-<img width="756" alt="upwork_cicd" src="https://github.com/earchibong/springboot_project/assets/92983658/58b9d072-cdc5-41a9-8a82-131838703003">
-
-<br>
-
 <br>
 
 ## Project Steps:
@@ -877,9 +873,8 @@ sudo nano /etc/nginx/nginx.conf
 <br>
     
 
-    And that's it! We have successfully deployed a Spring Boot application into Docker connected with MongoDB! 
-To take this further, if there is a need![Uploading nginx_Server.png…]()
- for scalability, high availability, automatic scaling, and SSL termination, a Load Balancer can be deployed and attached to the instance otherwise, an elastic ip can be associated to the instance and an `A` record, created to mapp a domain to the ip.
+ And that's it! We have successfully deployed a Spring Boot application into Docker connected with MongoDB! 
+
 
 <br>
     
