@@ -17,6 +17,7 @@ user For Jenkins To Access AWS Services</a>
 - <a href="https://github.com/earchibong/springboot_project/blob/main/documentationa.md#create-a-dockerfile-for-the-application">Create Dockerfile</a>
 - <a href="https://github.com/earchibong/springboot_project/blob/main/documentationa.md#create-docker-compse-file">Create Docker-Compose File</a>
 - <a href="https://github.com/earchibong/springboot_project/blob/main/documentationa.md#create-a-jenkins-job-for-the-cicd-pipeline">Create Jenkins Job For CI/CD Pipeline</a>
+- <a href="https://github.com/earchibong/springboot_project/blob/main/documentationa.md#create-reverse-proxy-and-ssltls-encryption">Create Nginx Reverse Proxy and SSl/TSL Encryption</a>
 
 
 <br>
@@ -860,6 +861,18 @@ sudo nano /etc/nginx/nginx.conf
 <br>
     
 <br>
+    
+- restart nginx
+    
+```
+    
+ sudo systemctl restart nginx   
+    
+```
+    
+ <br>
+    
+<br>
  
 <img width="1035" alt="cerbot" src="https://github.com/earchibong/springboot_project/assets/92983658/72bf15f5-0868-4c6c-b85d-f52ad07a49ea">
 
@@ -868,7 +881,7 @@ sudo nano /etc/nginx/nginx.conf
     
 <br>
     
-    
+  
 
  And that's it! We have successfully deployed a Spring Boot application into Docker connected with MongoDB! 
 
