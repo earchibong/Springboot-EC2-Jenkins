@@ -745,10 +745,13 @@ pipeline {
 
 <br>
     
+<br>
+    
 <img width="1389" alt="app_5000" src="https://github.com/earchibong/springboot_project/assets/92983658/87768df9-7e4d-4277-a74e-9050a4e82465">
 
 <br>
-    
+
+<br>
     
 ## Create Reverse Proxy And SSL/TLS Encryption
     
@@ -785,29 +788,49 @@ pipeline {
 
  <br>
     
- - Update /etc/hosts file for local DNS with Web Servers’ names and their local IP addresses
+ - Make sure you have a domain name pointed at the EC2's ip address.
+
+<br>
+    
+<br>
+    
+<img width="1385" alt="dns_verify" src="https://github.com/earchibong/springboot_project/assets/92983658/090ec89b-970e-4607-9d09-d2e4c6070733">
+
+<br>
+    
+<br>
+    
+- stop the nginx service 
+    
 ```
     
+sudo systemctl stop nginx
 
-#Open this file on the LB server
-
-sudo nano /etc/hosts
-
-#Add 2 records into this file with Local IP address and arbitrary name for both of your Web Servers
-
-<app-Private-IP-Address> Web1
-<WebServer2-Private-IP-Address> Web2
-
+```
+    
+- Install certbot on the EC2 instance
+    
+```
+    
+sudo dnf install python3 augeas-libs
+sudo python3 -m venv /opt/certbot/
+sudo /opt/certbot/bin/pip install --upgrade pip
+sudo /opt/certbot/bin/pip install certbot certbot-nginx
+sudo ln -s /opt/certbot/bin/certbot /usr/bin/certbot
+sudo certbot certonly --nginx
     
 ```
     
 <br>
     
-<img width="1180" alt="etc" src="https://github.com/earchibong/springboot_project/assets/92983658/c5eecef1-c485-4429-bccd-fad1410131ac">
+<br>
+    
+<img width="1386" alt="cert" src="https://github.com/earchibong/springboot_project/assets/92983658/0d7e360c-d0fa-41d7-b865-708ebabd19cd">
 
 <br>
     
 <br>
+    
     
 - Setup Server Block For Nginx
 
@@ -820,20 +843,20 @@ sudo nano /etc/nginx/nginx.conf
 # update NginX Load Balancer config file with Web Servers’ names defined in /etc/hosts
 #insert following configuration into http section
 
- upstream myproject {
-    server Web1 weight=5;
-    server Web2 weight=5;
-  }
-
-server {
-    listen 80;
-    server_name www.your_new_domain.com;
-    location / {
-      proxy_pass http://myproject;
+ server {
+        listen       80;
+        listen       [::]:80;
+        server_name  archibong.link;
+        location / {
+            proxy_pass http://172.31.15.225:5000;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection 'upgrade';
+            proxy_set_header Host $host;
+            proxy_cache_bypass $http_upgrade;
+        }
     }
-  }
 
-# ensure Settings for a TLS enabled server is enabled as well
 
     
 ```
@@ -849,20 +872,7 @@ server {
     
 <br>
     
-### SSL Setup
-    
-```
-    
-sudo dnf install python3 augeas-libs
-sudo python3 -m venv /opt/certbot/
-sudo /opt/certbot/bin/pip install --upgrade pip
-sudo /opt/certbot/bin/pip install certbot certbot-nginx
-    
-sudo ln -s /opt/certbot/bin/certbot /usr/bin/certbot
-sudo certbot --nginx
-    
-    
-```
+
     
 <br>
     
