@@ -6,7 +6,7 @@ pipeline {
     DOCKERFILE = "./Dockerfile"
     //MAVEN_OPTS = "-Dmaven.repo.local=$WORKSPACE/.m2"
     COMPOSE_FILE = "./docker-compose.yml.template"
-    EC2_INSTANCE = "ec2-user@ec2-18-130-4-172.eu-west-2.compute.amazonaws.com"
+    EC2_INSTANCE = "ec2-user@ec2-35-178-232-60.eu-west-2.compute.amazonaws.com"
     IMAGE_TAG = "mongospringboot-${env.BUILD_ID}"
     IMAGE_NAME = "${ECR_REGISTRY}:${IMAGE_TAG}"
   }
