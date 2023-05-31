@@ -861,16 +861,13 @@ sudo nano /etc/nginx/nginx.conf
     
 <br>
  
-<img width="1144" alt="etc" src="https://github.com/earchibong/springboot_project/assets/92983658/fae64db7-4851-4772-a70f-352b420aed92">
+<img width="1035" alt="cerbot" src="https://github.com/earchibong/springboot_project/assets/92983658/72bf15f5-0868-4c6c-b85d-f52ad07a49ea">
 
     
 <br>
     
 <br>
     
-
-    
-<br>
     
 
  And that's it! We have successfully deployed a Spring Boot application into Docker connected with MongoDB! 
