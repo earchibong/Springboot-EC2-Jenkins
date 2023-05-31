@@ -18,7 +18,7 @@ WORKDIR /app
 COPY target/mongodb-springboot.jar app.jar
 
 # Expose the port on which your Spring Boot application listens
-EXPOSE 8080
+EXPOSE 5000
 
 # Set the entry point command to run the application
 ENTRYPOINT ["java", "-jar", "app.jar"]

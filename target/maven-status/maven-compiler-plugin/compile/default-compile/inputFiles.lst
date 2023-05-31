@@ -1,4 +1,4 @@
-/Users/elizabetharchibong/Desktop/mongodb-springboot/src/main/java/com/rest/api/controller/UserController.java
-/Users/elizabetharchibong/Desktop/mongodb-springboot/src/main/java/com/rest/api/ApiApplication.java
-/Users/elizabetharchibong/Desktop/mongodb-springboot/src/main/java/com/rest/api/entity/User.java
-/Users/elizabetharchibong/Desktop/mongodb-springboot/src/main/java/com/rest/api/repository/UserRepository.java
+/Users/elizabetharchibong/Desktop/mongodb-springboot/src/main/java/com/alexbt/mongodb/ModelMongoRepository.java
+/Users/elizabetharchibong/Desktop/mongodb-springboot/src/main/java/com/alexbt/mongodb/MongoController.java
+/Users/elizabetharchibong/Desktop/mongodb-springboot/src/main/java/com/alexbt/mongodb/Model.java
+/Users/elizabetharchibong/Desktop/mongodb-springboot/src/main/java/com/alexbt/mongodb/Launcher.java

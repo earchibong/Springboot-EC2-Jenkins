@@ -1,4 +1,4 @@
-com/rest/api/controller/UserController.class
-com/rest/api/ApiApplication.class
-com/rest/api/entity/User.class
-com/rest/api/repository/UserRepository.class
+com/alexbt/mongodb/MongoController.class
+com/alexbt/mongodb/Model.class
+com/alexbt/mongodb/Launcher.class
+com/alexbt/mongodb/ModelMongoRepository.class

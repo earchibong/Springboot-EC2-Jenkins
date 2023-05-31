@@ -112,7 +112,7 @@ sudo chmod -v +x /usr/local/bin/docker-compose
 docker-compose version
 
 # note 1: install all dependencies on the Jenkins server
-# note 2: install docker and docker-compose also on the app server
+# note 2: install docker and docker-compose on both the jenkins and app instances
 
 
 ```
@@ -146,6 +146,7 @@ sudo systemctl start jenkins
 
 # check the status of the Jenkins service
 sudo systemctl status jenkins
+
 
 ```
 
@@ -214,49 +215,45 @@ Follow instruction on jenkins management interface
 <br>
 
 
-## Create an IAM Role for Jenkins to access AWS services
-- Give the IAM role, the necessary permissions to access ECR and ECS.
-
-I already have a role `ECR-Jenkins` that was created prerviously so i'm going to add permissions for ECR and ECS. However, here are the steps for creating a user and attaching permissions:
-
-- in `iam` console, create a role (name it whatever you want)
-- click `add permissions`
- - select the permission + Policies to add to the role: 
-    - ECR: `AmazonEC2ContainerRegistryFullAccess`
-    - EC2: `AmazonEC2FullAccess`
-
-<br>
-
-<img width="1390" alt="ecr_iam" src="https://github.com/earchibong/springboot_project/assets/92983658/55fc5b46-e2f1-4b0a-965a-b0ba7acda8a1">
+## Create an IAM User for Jenkins to access AWS services
+- create a user named `springboot-jenkins` (make a note of access key id and secret access key)
+- create a user group named `springboot` from IAM dashbaord
+- add your user to the user group
+- Give the IAM user group the necessary permissions to access:
+  -  ECR: `AmazonEC2ContainerRegistryFullAccess` - `arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryFullAccess`
+  -  EC2: `AmazonEC2FullAccess` - `arn:aws:iam::aws:policy/AmazonEC2FullAccess`
 
 <br>
 
 <br>
-
-- in the Jenkins instance, modify the IAM role for the instance: select `Actions > Security > Modify IAM Role`
-
-<br>
-
-![image](https://github.com/earchibong/springboot_project/assets/92983658/4efbfc4b-7c0b-4666-a47f-68bcc6c16177)
-
-<br>
-
-<br>
-
-![image](https://github.com/earchibong/springboot_project/assets/92983658/7a7b8c33-85f2-4728-8d41-c442086e1db6)
-
-<br>
-
-
-<br>
-
-- Allow the IAM role and Jenkins to execute Docker and Docker Compose commands on the EC2 instance
 
 ```
 
+aws iam create-user --user-name springboot-jenkins
+aws iam create-group --group-name springboot
+aws iam add-user-to-group --user-name springboot-jenkins --group-name springboot
+
+# verify user is in user group
+aws iam get-group --group-name springboot
+
+# attach group policy
+aws iam attach-group-policy --group-name springboot --policy-arn <value>
+
+```
+
+<br>
+
+
+<br>
+
+- Allow the IAM user and Jenkins to execute Docker and Docker Compose commands on the EC2 instance
+
+```
+
+# do this on both the app and jenkins instance
 sudo groupadd docker
 sudo usermod -aG docker $USER
-# sudo usermod -aG docker <IAM_ROLE>
+
 
 ```
 
@@ -329,7 +326,7 @@ aws ecr create-repository --repository-name ecs-local --image-scanning-configura
  - Add credentials:
    + Docker label: Docker
    + Docker registry URL: <your ECR url>
-   + credentials: add your ECR region and AWS IAM role ARN
+   + credentials: add your ECR region and AWS IAM user acess key id and secret access key
    
 
 <br>
@@ -377,7 +374,7 @@ To load an embedded MongoDB with Spring Boot, all that is needed is to add its m
 <br>
 
 
-In this config. I have overridden the default port 8080 to 27017. Usually we put `host` as `localhost` when we develop apps locally. But we have to put container name as the host here, since we are connecting to `mongo db docker` container and not the local mongo db on the machine. Make a note of the database name as a `mongodb docker` container will be created later with it.
+In this config. I have overridden the default port 8080 to 27017. Usually we put `host` as `localhost` when we develop apps locally. But we have to put container name as the host here, since we are connecting to `mongodb` container and not the local mongo db on the machine. Make a note of the database name as a `docker-db` container will be created later with it.
 
 
 <br>
@@ -419,7 +416,7 @@ WORKDIR /app
 COPY target/mongodb-springboot.jar app.jar
 
 # Expose the port on which your Spring Boot application listens
-EXPOSE 8080
+EXPOSE 5000
 
 # Set the entry point command to run the application
 ENTRYPOINT ["java", "-jar", "app.jar"]
@@ -455,15 +452,15 @@ services:
     environment:
       - MONGO_HOST=mongodb
       - MONGO_PORT=27017
-      - MONGO_DB=api
+      - MONGO_DB=docker-db
     depends_on:
       - mongodb
 
   mongodb:
     image: mongo:latest
-    container_name: "mongo-db"
+    container_name: "mongodb"
     ports:
-      - 27017:27017
+      - 27017:27017 
 
 
     
