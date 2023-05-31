@@ -439,7 +439,7 @@ This Dockerfile uses the official `adoptopenjdk 11 image` as the base, copies th
 <br>
 
 ## Create Docker-Compose File
-- Create a file named `docker-compose.yml` in the project's root directory and add the following:
+- Create a file named `docker-compose.yml.template` in the project's root directory and add the following:
 ```
     
 version: '3'
@@ -751,12 +751,12 @@ pipeline {
 <br>
     
     
-## Create Load Balancer With NginX And SSL/TLS Encryption
+## Create Reverse Proxy And SSL/TLS Encryption
     
 - spin up an EC2 instance and name it `nginx lb`
 - open `TCP port 80` for HTTP connections, also open `TCP port 443` for HTTPS 
 
-### Configure NginX Server as a Load Balancer
+### Configure NginX Server
 
 - SSH into EC2 instance
 - configure DNS records
@@ -811,6 +811,9 @@ sudo nano /etc/hosts
 <br>
     
 - Setup Server Block For Nginx
+
+<br>
+
 ```
     
 sudo nano /etc/nginx/nginx.conf
