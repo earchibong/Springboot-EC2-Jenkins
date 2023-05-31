@@ -5,10 +5,6 @@ As per the <a href="https://github.com/earchibong/springboot_project/tree/main#r
 
 <br>
 
-<img width="756" alt="upwork_cicd" src="https://github.com/earchibong/springboot_project/assets/92983658/58b9d072-cdc5-41a9-8a82-131838703003">
-
-<br>
-
 <br>
 
 ## Project Steps:
@@ -21,6 +17,7 @@ user For Jenkins To Access AWS Services</a>
 - <a href="https://github.com/earchibong/springboot_project/blob/main/documentationa.md#create-a-dockerfile-for-the-application">Create Dockerfile</a>
 - <a href="https://github.com/earchibong/springboot_project/blob/main/documentationa.md#create-docker-compse-file">Create Docker-Compose File</a>
 - <a href="https://github.com/earchibong/springboot_project/blob/main/documentationa.md#create-a-jenkins-job-for-the-cicd-pipeline">Create Jenkins Job For CI/CD Pipeline</a>
+- <a href="https://github.com/earchibong/springboot_project/blob/main/documentationa.md#create-reverse-proxy-and-ssltls-encryption">Create Nginx Reverse Proxy and SSl/TSL Encryption</a>
 
 
 <br>
@@ -475,7 +472,7 @@ services:
     
 <br>
     
-<img width="822" alt="docker_compose" src="https://github.com/earchibong/springboot_project/assets/92983658/7e685490-a6c7-4140-be35-17190dfc1aec">
+<img width="769" alt="compose" src="https://github.com/earchibong/springboot_project/assets/92983658/551a5bea-d478-4267-9c7b-1a9b64c5da95">
 
 <br>
     
@@ -745,10 +742,13 @@ pipeline {
 
 <br>
     
+<br>
+    
 <img width="1389" alt="app_5000" src="https://github.com/earchibong/springboot_project/assets/92983658/87768df9-7e4d-4277-a74e-9050a4e82465">
 
 <br>
-    
+
+<br>
     
 ## Create Reverse Proxy And SSL/TLS Encryption
     
@@ -785,29 +785,49 @@ pipeline {
 
  <br>
     
- - Update /etc/hosts file for local DNS with Web Servers’ names and their local IP addresses
+ - Make sure you have a domain name pointed at the EC2's ip address.
+
+<br>
+    
+<br>
+    
+<img width="1385" alt="dns_verify" src="https://github.com/earchibong/springboot_project/assets/92983658/090ec89b-970e-4607-9d09-d2e4c6070733">
+
+<br>
+    
+<br>
+    
+- stop the nginx service 
+    
 ```
     
+sudo systemctl stop nginx
 
-#Open this file on the LB server
-
-sudo nano /etc/hosts
-
-#Add 2 records into this file with Local IP address and arbitrary name for both of your Web Servers
-
-<app-Private-IP-Address> Web1
-<WebServer2-Private-IP-Address> Web2
-
+```
+    
+- Install certbot on the EC2 instance
+    
+```
+    
+sudo dnf install python3 augeas-libs
+sudo python3 -m venv /opt/certbot/
+sudo /opt/certbot/bin/pip install --upgrade pip
+sudo /opt/certbot/bin/pip install certbot certbot-nginx
+sudo ln -s /opt/certbot/bin/certbot /usr/bin/certbot
+sudo certbot certonly --nginx
     
 ```
     
 <br>
     
-<img width="1180" alt="etc" src="https://github.com/earchibong/springboot_project/assets/92983658/c5eecef1-c485-4429-bccd-fad1410131ac">
+<br>
+    
+<img width="1386" alt="cert" src="https://github.com/earchibong/springboot_project/assets/92983658/0d7e360c-d0fa-41d7-b865-708ebabd19cd">
 
 <br>
     
 <br>
+    
     
 - Setup Server Block For Nginx
 
@@ -820,56 +840,51 @@ sudo nano /etc/nginx/nginx.conf
 # update NginX Load Balancer config file with Web Servers’ names defined in /etc/hosts
 #insert following configuration into http section
 
- upstream myproject {
-    server Web1 weight=5;
-    server Web2 weight=5;
-  }
-
-server {
-    listen 80;
-    server_name www.your_new_domain.com;
-    location / {
-      proxy_pass http://myproject;
+ server {
+        listen       80;
+        listen       [::]:80;
+        server_name  archibong.link;
+        location / {
+            proxy_pass http://172.31.15.225:5000;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection 'upgrade';
+            proxy_set_header Host $host;
+            proxy_cache_bypass $http_upgrade;
+        }
     }
-  }
 
-# ensure Settings for a TLS enabled server is enabled as well
 
     
 ```
     
 <br>
+    
+<br>
+    
+- restart nginx
+    
+```
+    
+ sudo systemctl restart nginx   
+    
+```
+    
+ <br>
     
 <br>
  
-<img width="1144" alt="etc" src="https://github.com/earchibong/springboot_project/assets/92983658/fae64db7-4851-4772-a70f-352b420aed92">
+<img width="1035" alt="cerbot" src="https://github.com/earchibong/springboot_project/assets/92983658/72bf15f5-0868-4c6c-b85d-f52ad07a49ea">
 
     
 <br>
     
 <br>
     
-### SSL Setup
-    
-```
-    
-sudo dnf install python3 augeas-libs
-sudo python3 -m venv /opt/certbot/
-sudo /opt/certbot/bin/pip install --upgrade pip
-sudo /opt/certbot/bin/pip install certbot certbot-nginx
-    
-sudo ln -s /opt/certbot/bin/certbot /usr/bin/certbot
-sudo certbot --nginx
-    
-    
-```
-    
-<br>
-    
+  
 
-    And that's it! We have successfully deployed a Spring Boot application into Docker connected with MongoDB! 
-To take this further, if there is a need![Uploading nginx_Server.png…]()
- for scalability, high availability, automatic scaling, and SSL termination, a Load Balancer can be deployed and attached to the instance otherwise, an elastic ip can be associated to the instance and an `A` record, created to mapp a domain to the ip.
+ And that's it! We have successfully deployed a Spring Boot application into Docker connected with MongoDB! 
+
 
 <br>
     
