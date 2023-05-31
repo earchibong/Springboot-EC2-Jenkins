@@ -452,7 +452,7 @@ services:
     environment:
       - MONGO_HOST=mongodb
       - MONGO_PORT=27017
-      - MONGO_DB=docker-db
+      - MONGO_DB=springboot-db
     depends_on:
       - mongodb
 
