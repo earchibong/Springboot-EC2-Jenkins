@@ -785,6 +785,8 @@ pipeline {
 
  <br>
     
+<br>
+
  - Make sure you have a domain name pointed at the EC2's ip address.
 
 <br>
@@ -797,6 +799,9 @@ pipeline {
     
 <br>
     
+<br>
+
+
 - stop the nginx service 
     
 ```
@@ -804,7 +809,10 @@ pipeline {
 sudo systemctl stop nginx
 
 ```
-    
+
+<br>
+
+
 - Install certbot on the EC2 instance
     
 ```
