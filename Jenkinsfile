@@ -54,7 +54,7 @@ pipeline {
                docker build --tag ${IMAGE_NAME} --file ${DOCKERFILE} ${env.WORKSPACE}
                """
 
-               docker.withRegistry("https://${ECR_REGISTRY}", "${AWS_REGION}") {
+               docker.withRegistry("https://${ECR_REGISTRY}") {
                 docker.image("${IMAGE_NAME}").push() 
                 }
               }
