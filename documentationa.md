@@ -388,9 +388,6 @@ mvn clean package -DskipTests
 
 <br>
 
-<br>
-
-image
 
 <br>
 
